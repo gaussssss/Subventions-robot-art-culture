@@ -14,5 +14,9 @@ journaux/
 compte-service*.json
 service-account*.json
 
-# Fichiers locaux Claude Code
+# Fichiers Claude Code
 .claude/
+.claude*
+CLAUDE.md
+CLAUDE.local.md
+.mcp.json
