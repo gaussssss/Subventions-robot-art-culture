@@ -1,0 +1,1120 @@
+{
+  "_documentation": "Catalogue des sources et de leurs règles de scraping. Schéma des règles : voir le docstring de veille/extracteur.py. regles=null → source cataloguée, règles à écrire (signalée au Journal).",
+  "sources": [
+    {
+      "id": "ville-trois-rivieres",
+      "nom": "Ville de Trois-Rivières — Soutien aux organismes et artistes",
+      "palier": "Municipal",
+      "actif": true,
+      "notes": "Page centrale des programmes municipaux : médiation culturelle, soutien aux activités culturelles (appels périodiques), mise en valeur du patrimoine et soutien au fonctionnement des organismes culturels professionnels. Contact : subventionsculture@v3r.net.",
+      "pages": [
+        {
+          "url": "https://www.v3r.net/services-a-la-population/vie-communautaire/organismes-communautaires",
+          "regles": {
+            "bloc": "div.slider-container",
+            "champs": {
+              "nom_programme": "h4",
+              "notes_agent": {
+                "selecteur": ".slider-content",
+                "regex": "^(.{1,300})"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "Ville de Trois-Rivières"
+              }
+            },
+            "exclure_si": [
+              "(?i)^(?!.*(?:culturel|culture|patrimoine))"
+            ]
+          },
+          "statut_regles": "testées 2026-07-14 — filtre thématique (mots-clés culture/patrimoine) sur une page accordéon tous programmes"
+        }
+      ]
+    },
+    {
+      "id": "culture-trois-rivieres",
+      "nom": "Culture Trois-Rivières",
+      "palier": "Municipal",
+      "actif": true,
+      "notes": "Organisme mandataire de la politique culturelle de la Ville ; publie les appels de projets culturels (médiation, entente de développement culturel Trois-Rivières/MCC) et une page de repérage de financement pour les professionnels.",
+      "pages": [
+        {
+          "url": "https://www.culture3r.com/appels-de-projets-culturels/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        },
+        {
+          "url": "https://www.culture3r.com/zone-prof/trouver-du-financement/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "ville-shawinigan",
+      "nom": "Ville de Shawinigan — Programmes et aide financière",
+      "palier": "Municipal",
+      "actif": true,
+      "notes": "Programme de commandites/contributions et soutien aux événements locaux pour OBNL ; pertinent si l'organisme rayonne ou tient des activités à Shawinigan.",
+      "pages": [
+        {
+          "url": "https://www.shawinigan.ca/services-aux-citoyens/programmes-et-aide-financiere/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        },
+        {
+          "url": "https://www.shawinigan.ca/loisirs-et-culture/arts-et-culture/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        },
+        {
+          "url": "https://cultureshawinigan.ca/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "culture-mauricie",
+      "nom": "Culture Mauricie",
+      "palier": "Régional",
+      "actif": true,
+      "notes": "Conseil régional de la culture : page centrale des appels de dossiers en Mauricie (toutes disciplines) et gestion de l'Entente sectorielle de développement de la culture (1,125 M$ 2024-2026, aide jusqu'à 80 % pour OBNL/coops).",
+      "pages": [
+        {
+          "url": "https://www.culturemauricie.ca/appels-de-dossiers/news/cat/10",
+          "regles": null,
+          "statut_regles": "js_requis — liste chargée en AJAX (endpoint fe_list_news.php non exploitable)"
+        },
+        {
+          "url": "https://www.culturemauricie.ca/appels-de-dossiers/arts-excellence",
+          "regles": {
+            "champs": {
+              "nom_programme": {
+                "valeur": "Prix Arts Excellence"
+              },
+              "date_limite": {
+                "selecteur": ".container_content",
+                "regex": "au\\s+(\\d{1,2}(?:er)?\\s+\\S+\\s+\\d{4})"
+              },
+              "montant": {
+                "selecteur": ".container_content",
+                "regex": "(\\d[\\d\\s]*\\d|\\d)\\s*\\$"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "notes_agent": {
+                "selecteur": ".container_content",
+                "regex": "^(.{1,280})"
+              },
+              "organisme": {
+                "valeur": "Culture Mauricie"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14"
+        },
+        {
+          "url": "https://www.culturemauricie.ca/appels-de-dossiers/entente-sectorielle",
+          "regles": {
+            "champs": {
+              "nom_programme": {
+                "valeur": "Entente sectorielle de développement de la culture en Mauricie (ESDCM) — Appel de projets en culture"
+              },
+              "date_limite": {
+                "selecteur": ".container_content",
+                "regex": "au\\s+(\\d{1,2}(?:er)?\\s+\\S+\\s+\\d{4})"
+              },
+              "montant": {
+                "selecteur": ".container_content",
+                "regex": "[Mm]aximum de\\s+([\\d\\s]+\\$)"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "notes_agent": {
+                "selecteur": ".container_content",
+                "regex": "^(.{1,280})"
+              },
+              "organisme": {
+                "valeur": "Culture Mauricie"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14"
+        },
+        {
+          "url": "https://www.culturemauricie.ca/appels-de-dossiers/coup-de-pouce",
+          "regles": {
+            "champs": {
+              "nom_programme": {
+                "valeur": "Commandites Coup de pouce"
+              },
+              "date_limite": {
+                "selecteur": ".container_content",
+                "regex": "au\\s+(\\d{1,2}(?:er)?\\s+\\S+\\s+\\d{4})"
+              },
+              "montant": {
+                "selecteur": ".container_content",
+                "regex": "(\\d[\\d\\s]*\\d|\\d)\\s*\\$"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "notes_agent": {
+                "selecteur": ".container_content",
+                "regex": "^(.{1,280})"
+              },
+              "organisme": {
+                "valeur": "Culture Mauricie"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14"
+        },
+        {
+          "url": "https://www.culturemauricie.ca/appels-de-dossiers/mentorat-groupe",
+          "regles": {
+            "champs": {
+              "nom_programme": {
+                "valeur": "Mentorat de groupe pour artistes entrepreneur.es"
+              },
+              "date_limite": {
+                "selecteur": ".container_content",
+                "regex": "avant le \\S+\\s+(\\d{1,2}\\s+\\S+\\s+\\d{4})"
+              },
+              "montant": {
+                "selecteur": ".container_content",
+                "regex": "[Cc]oût réel\\s*:\\s*(\\d[\\d\\s]*\\d|\\d)\\s*\\$"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "notes_agent": {
+                "selecteur": ".container_content",
+                "regex": "^(.{1,280})"
+              },
+              "organisme": {
+                "valeur": "Culture Mauricie"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14"
+        },
+        {
+          "url": "https://www.culturemauricie.ca/appels-de-dossiers/perfectionnement-individuel",
+          "regles": {
+            "champs": {
+              "nom_programme": {
+                "valeur": "Perfectionnement individuel"
+              },
+              "date_limite": {
+                "selecteur": ".container_content",
+                "regex": "date de tomb[ée]e\\s*:\\s*\\S+\\s+(\\d{1,2}\\s+\\S+\\s+\\d{4})"
+              },
+              "montant": {
+                "selecteur": ".container_content",
+                "regex": "exc[ée]der\\s+(\\d[\\d\\s]*\\d|\\d)\\s*\\$"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "notes_agent": {
+                "selecteur": ".container_content",
+                "regex": "^(.{1,280})"
+              },
+              "organisme": {
+                "valeur": "Culture Mauricie"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14"
+        }
+      ]
+    },
+    {
+      "id": "calq-partenariat-mauricie",
+      "nom": "CALQ — Partenariat territorial de la Mauricie",
+      "palier": "Régional",
+      "actif": true,
+      "notes": "Entente CALQ + MRC des Chenaux/Maskinongé/Mékinac + villes de Trois-Rivières et Shawinigan + Culture Mauricie (~172 000 $/an) pour artistes professionnels et organismes artistiques du territoire ; appel 2026 avec date limite le 23 juillet 2026.",
+      "pages": [
+        {
+          "url": "https://www.calq.gouv.qc.ca/aide-financiere/programmes-daides-financiere/artistes?tx_solr%5Bfilter%5D%5B0%5D=regions_uids_stringM%3A58&tx_solr%5BresultsPerPage%5D=96",
+          "regles": {
+            "bloc": "a.tile",
+            "champs": {
+              "nom_programme": "h3.tile-title",
+              "url": {
+                "attribut": "href"
+              },
+              "date_limite": {
+                "regex": "(?i)(\\d{1,2}\\s+[a-zàâäéèêëîïôöùûüç]+\\s+\\d{4}|en tout temps)"
+              },
+              "discipline": {
+                "selecteur": "p.tile-content ~ div.tile-meta"
+              },
+              "notes_agent": "p.tile-content",
+              "organisme": {
+                "valeur": "CALQ"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14 — moteur Solr rendu côté serveur, filtre région 58 = Mauricie"
+        },
+        {
+          "url": "https://www.calq.gouv.qc.ca/aide-financiere/programmes-daides-financiere/organismes?tx_solr%5Bfilter%5D%5B0%5D=regions_uids_stringM%3A58&tx_solr%5BresultsPerPage%5D=96",
+          "regles": {
+            "bloc": "a.tile",
+            "champs": {
+              "nom_programme": "h3.tile-title",
+              "url": {
+                "attribut": "href"
+              },
+              "date_limite": {
+                "regex": "(?i)(\\d{1,2}\\s+[a-zàâäéèêëîïôöùûüç]+\\s+\\d{4}|en tout temps)"
+              },
+              "discipline": {
+                "selecteur": "p.tile-content ~ div.tile-meta"
+              },
+              "notes_agent": "p.tile-content",
+              "organisme": {
+                "valeur": "CALQ"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14"
+        }
+      ]
+    },
+    {
+      "id": "mrc-maskinonge",
+      "nom": "MRC de Maskinongé — Fonds d'initiatives culturelles",
+      "palier": "Régional",
+      "actif": true,
+      "notes": "Fonds culturel avec dates de dépôt récurrentes (4 fois/an, aide max ~5 000 $/projet) et enveloppe sectorielle de vitalisation (50-90 %, max 18 000 $) ; pertinent si l'OBNL mène des activités dans la MRC de Maskinongé.",
+      "pages": [
+        {
+          "url": "https://culturemaskinonge.com/appel-de-dossiers/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        },
+        {
+          "url": "https://culturemaskinonge.com/enveloppe-vitalisation/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        },
+        {
+          "url": "https://mrcmaskinonge.ca/culture/fonds-initiatives-culturelles",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "mrc-mekinac",
+      "nom": "MRC de Mékinac — Fonds d'appui aux initiatives culturelles",
+      "palier": "Régional",
+      "actif": true,
+      "notes": "Aide jusqu'à 50 % du coût d'un projet culturel ponctuel (max ~1 500 $) sur le territoire de Mékinac ; la page soutien financier liste aussi les autres fonds de la MRC (FRR, économie sociale).",
+      "pages": [
+        {
+          "url": "https://mrcmekinac.com/services-conseils-et-soutien-financier/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "mrc-des-chenaux",
+      "nom": "MRC des Chenaux — Culture et soutien financier",
+      "palier": "Régional",
+      "actif": true,
+      "notes": "Politique de soutien aux projets structurants et relais des appels de l'entente sectorielle régionale ; pertinent pour des projets culturels rayonnant dans la MRC des Chenaux.",
+      "pages": [
+        {
+          "url": "https://www.mrcdeschenaux.ca/developpement-du-territoire/soutien-financier/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        },
+        {
+          "url": "https://www.mrcdeschenaux.ca/developpement-du-territoire/politiques-et-subventions-en-developpement-du-territoire/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "mcc-ententes-developpement-culturel",
+      "nom": "MCC — Ententes de développement culturel",
+      "palier": "Régional",
+      "actif": true,
+      "notes": "Cadre provincial qui finance l'entente de développement culturel de Trois-Rivières et les fonds culturels des MRC ; utile pour comprendre les montages Ville/MRC/MCC dont découlent les appels locaux.",
+      "pages": [
+        {
+          "url": "https://www.quebec.ca/culture/aide-financiere/initiatives-de-partenariat/ententes-developpement-culturel",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "desjardins-fadm-mauricie",
+      "nom": "Desjardins — Fonds d'aide au développement du milieu (caisses de la Mauricie)",
+      "palier": "Régional",
+      "actif": true,
+      "notes": "Chaque caisse gère son FADM avec appel de projets annuel (généralement en octobre, Semaine de la coopération) ; les projets culturels structurants sont admissibles — s'adresser à la caisse locale de Trois-Rivières.",
+      "pages": [
+        {
+          "url": "https://www.desjardins.com/fr/a-propos/communaute/developpement-collectif.html",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "fondation-communautaire-saint-maurice",
+      "nom": "Fondation communautaire du Saint-Maurice",
+      "palier": "Régional",
+      "actif": true,
+      "notes": "Fondation philanthropique régionale (Mauricie/Centre-du-Québec) gérant une centaine de fonds de dotation, dont plusieurs à vocation culturelle ; financement complémentaire hors appels classiques.",
+      "pages": [
+        {
+          "url": "https://www.fondationcommunautairedustm.ca/5773-liste_des_fonds",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "calq-organismes",
+      "nom": "CALQ — Programmes pour organismes",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Source provinciale centrale : page-filtre listant tous les programmes pour organismes (soutien à la mission, projets, diffusion) par discipline, région et statut ouvert/fermé.",
+      "pages": [
+        {
+          "url": "https://www.calq.gouv.qc.ca/aide-financiere/programmes-daides-financiere/organismes?tx_solr%5BresultsPerPage%5D=96",
+          "regles": {
+            "bloc": "a.tile",
+            "champs": {
+              "nom_programme": "h3.tile-title",
+              "url": {
+                "attribut": "href"
+              },
+              "date_limite": {
+                "regex": "(?i)(\\d{1,2}\\s+[a-zàâäéèêëîïôöùûüç]+\\s+\\d{4}|en tout temps)"
+              },
+              "discipline": {
+                "selecteur": "p.tile-content ~ div.tile-meta"
+              },
+              "notes_agent": "p.tile-content",
+              "organisme": {
+                "valeur": "CALQ"
+              }
+            },
+            "exclure_si": [
+              "(?i)^(?!.*mauricie).*partenariat territorial"
+            ]
+          },
+          "statut_regles": "testées 2026-07-14 — resultsPerPage=96 indispensable (12 résultats par défaut, 83 programmes)"
+        }
+      ]
+    },
+    {
+      "id": "mcc-quebec",
+      "nom": "MCC Québec — Aide financière en culture",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Portail central du MCC : index des appels de projets culturels actifs par secteur et volet Accueil (jusqu'à 75 % des dépenses, max 50 000 $) pour organismes en développement.",
+      "pages": [
+        {
+          "url": "https://www.quebec.ca/culture/aide-financiere/aide-aux-projets-appel",
+          "regles": {
+            "bloc": ".ce-bodytext li a",
+            "champs": {
+              "nom_programme": {},
+              "url": {
+                "attribut": "href"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "Ministère de la Culture et des Communications (MCC)"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14 — pas de dates sur les pages de liste (calendrier en PDF)"
+        },
+        {
+          "url": "https://www.quebec.ca/culture/aide-financiere/aide-au-fonctionnement",
+          "regles": {
+            "bloc": ".ce-bodytext li a",
+            "champs": {
+              "nom_programme": {},
+              "url": {
+                "attribut": "href"
+              },
+              "type": {
+                "valeur": "Fonctionnement"
+              },
+              "organisme": {
+                "valeur": "Ministère de la Culture et des Communications (MCC)"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14"
+        },
+        {
+          "url": "https://www.quebec.ca/culture/aide-financiere/immobilisations",
+          "regles": {
+            "bloc": ".ce-bodytext li a",
+            "champs": {
+              "nom_programme": {},
+              "url": {
+                "attribut": "href"
+              },
+              "type": {
+                "valeur": "Immobilisation"
+              },
+              "organisme": {
+                "valeur": "Ministère de la Culture et des Communications (MCC)"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14"
+        },
+        {
+          "url": "https://www.quebec.ca/culture/aide-financiere/initiatives-de-partenariat",
+          "regles": {
+            "bloc": ".ce-bodytext li a",
+            "champs": {
+              "nom_programme": {},
+              "url": {
+                "attribut": "href"
+              },
+              "type": {
+                "valeur": "Autre"
+              },
+              "organisme": {
+                "valeur": "Ministère de la Culture et des Communications (MCC)"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14"
+        },
+        {
+          "url": "https://www.quebec.ca/culture/aide-financiere/aide-aux-projets-appel/developpement-culturel-numerique-en-francophonie-canadienne",
+          "regles": {
+            "champs": {
+              "nom_programme": "h1.themeTitre",
+              "date_limite": {
+                "selecteur": "qc-notice p",
+                "regex": "(\\d{1,2}\\s+\\S+\\s+\\d{4})"
+              },
+              "notes_agent": {
+                "selecteur": "qc-notice .avis-titre"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "Ministère de la Culture et des Communications (MCC)"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14 — patron qc-notice réutilisable pour toute fiche d'appel MCC"
+        }
+      ]
+    },
+    {
+      "id": "mcc-mecenat-placements-culture",
+      "nom": "MCC — Mécénat Placements Culture",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Programme d'appariement qui multiplie les dons privés recueillis par l'OBNL (fonds de dotation ou de réserve) ; très pertinent si l'organisme développe une stratégie philanthropique.",
+      "pages": [
+        {
+          "url": "https://www.quebec.ca/culture/aide-financiere/mecenat-culture",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "sodec-musique-varietes",
+      "nom": "SODEC — Musique et variétés",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Programmes pour la production, la promotion et la circulation de spectacles musicaux (PAPEMS, PAACS, aide aux entreprises) ; les OBNL agissant comme producteurs/diffuseurs en musique y sont admissibles.",
+      "pages": [
+        {
+          "url": "https://sodec.gouv.qc.ca/services/aide-financiere/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "sodec-metiers-dart",
+      "nom": "SODEC — Métiers d'art et marché de l'art",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Aide aux artisans et entreprises en métiers d'art (OBNL du secteur admissibles) : démarrage, distribution spécialisée, participation à des salons, plus soutien au marché de l'art (galeries, diffusion).",
+      "pages": [
+        {
+          "url": "https://sodec.gouv.qc.ca/domaines-dintervention/metiers-dart-et-marche-de-art/aide-financiere/artisans-et-entreprises-en-metiers-dart/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        },
+        {
+          "url": "https://sodec.gouv.qc.ca/services/aide-financiere/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "cmaq-metiers-dart",
+      "nom": "Conseil des métiers d'art du Québec (CMAQ)",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Pas de subventions directes, mais page d'aide financière, reconnaissance du statut professionnel (donnant accès aux bourses CALQ/CAC), appels de candidatures et prix pour les artisans membres.",
+      "pages": [
+        {
+          "url": "https://www.metiersdart.ca/services/aide-financiere",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "emploi-quebec-subvention-salariale",
+      "nom": "Services Québec — Subvention salariale (OBNL)",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Couvre une partie du salaire (jusqu'à ~50 % pendant 30 semaines, formulaire dédié aux OBNL) pour l'embauche de personnes éloignées du marché du travail ; utile pour des postes de coordination ou de médiation culturelle.",
+      "pages": [
+        {
+          "url": "https://www.quebec.ca/emploi/subvention-salariale",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "conseil-arts-canada",
+      "nom": "Conseil des arts du Canada",
+      "palier": "Fédéral",
+      "actif": true,
+      "notes": "Principal bailleur fédéral des arts : page maîtresse listant tous les programmes (création, production, diffusion, tournées, financement de base pluriannuel) pour organismes et artistes de toutes disciplines.",
+      "domaines_supplementaires": [
+        "cca-internal-cac-interne.my.site.com"
+      ],
+      "pages": [
+        {
+          "url": "https://conseildesarts.ca/financement/subventions",
+          "regles": {
+            "bloc": "div.score-highlight:has(a.score-button)",
+            "champs": {
+              "nom_programme": "h3",
+              "url": {
+                "selecteur": "a.score-button",
+                "attribut": "href"
+              },
+              "notes_agent": ".score-highlight-body p",
+              "organisme": {
+                "valeur": "Conseil des arts du Canada"
+              }
+            },
+            "exclure_si": [
+              "(?i)dates limites",
+              "(?i)conseils et ressources"
+            ]
+          },
+          "statut_regles": "testées 2026-07-14"
+        },
+        {
+          "url": "https://conseildesarts.ca/financement/subventions/dates-limites",
+          "regles": {
+            "bloc": "div.score-content-spot table.table-responsive:nth-of-type(-n+5) tbody tr",
+            "champs": {
+              "nom_programme": "td strong a",
+              "url": {
+                "selecteur": "td strong a",
+                "attribut": "href"
+              },
+              "date_limite": {
+                "selecteur": "td:nth-of-type(2)"
+              },
+              "notes_agent": {
+                "selecteur": "td:nth-of-type(3)"
+              },
+              "organisme": {
+                "valeur": "Conseil des arts du Canada"
+              }
+            },
+            "exclure_si": [
+              "(?i)archiv",
+              "(?i)terminé"
+            ]
+          },
+          "statut_regles": "testées 2026-07-14 — fragile : ':nth-of-type(-n+5)' isole les 5 tableaux d'échéances à venir"
+        }
+      ]
+    },
+    {
+      "id": "patrimoine-canadien",
+      "nom": "Patrimoine canadien — Programmes de financement",
+      "palier": "Fédéral",
+      "actif": true,
+      "notes": "Point d'entrée officiel listant tous les fonds de Patrimoine canadien, dont le Fonds pour l'investissement en culture, le Fonds de formation dans le secteur des arts et le Fonds de la musique du Canada.",
+      "pages": [
+        {
+          "url": "https://www.canada.ca/fr/patrimoine-canadien/services/financement.html",
+          "regles": {
+            "bloc": "table.wb-tables tbody tr",
+            "champs": {
+              "nom_programme": "td:nth-of-type(1) a",
+              "url": {
+                "selecteur": "td:nth-of-type(1) a",
+                "attribut": "href"
+              },
+              "notes_agent": "td:nth-of-type(2)",
+              "organisme": {
+                "valeur": "Patrimoine canadien"
+              }
+            },
+            "exclure_si": [
+              "(?i)archiv",
+              "(?i)terminé",
+              "(?i)clos"
+            ]
+          },
+          "statut_regles": "testées 2026-07-14 — pas de dates limites sur la page de liste"
+        }
+      ]
+    },
+    {
+      "id": "fcpa-presentation-arts",
+      "nom": "Fonds du Canada pour la présentation des arts (FCPA)",
+      "palier": "Fédéral",
+      "actif": true,
+      "notes": "Soutien aux diffuseurs de spectacles professionnels et aux festivals artistiques (programmation, séries de spectacles) ; très pertinent pour un OBNL présentant musique et arts de la scène.",
+      "pages": [
+        {
+          "url": "https://www.canada.ca/fr/patrimoine-canadien/services/financement/fonds-presentation-arts.html",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "fcec-espaces-culturels",
+      "nom": "Fonds du Canada pour les espaces culturels (FCEC)",
+      "palier": "Fédéral",
+      "actif": true,
+      "notes": "Financement d'infrastructures culturelles : rénovation de salles, ateliers de métiers d'art, galeries, achat d'équipement spécialisé ; dépôt en continu, couvre une part importante des coûts.",
+      "pages": [
+        {
+          "url": "https://www.canada.ca/fr/patrimoine-canadien/services/financement/fonds-espaces-culturels.html",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "dcap-developpement-communautes",
+      "nom": "Développement des communautés par le biais des arts et du patrimoine (DCAP)",
+      "palier": "Fédéral",
+      "actif": true,
+      "notes": "Trois volets (Festivals locaux, Commémorations communautaires, Fonds Legs) adaptés à un OBNL organisant des festivals ou événements culturels locaux à Trois-Rivières.",
+      "pages": [
+        {
+          "url": "https://www.canada.ca/fr/patrimoine-canadien/services/financement/developpement-communautes.html",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "musicaction",
+      "nom": "Musicaction",
+      "palier": "Fédéral",
+      "actif": true,
+      "notes": "Financement de la musique francophone canadienne (via le Fonds de la musique du Canada) : production d'albums, émergence, événements et vitrines, commercialisation ; la page Programmes liste tous les volets et leurs dépôts.",
+      "pages": [
+        {
+          "url": "https://musicaction.ca/programmes/",
+          "regles": {
+            "bloc": "article.card-program",
+            "champs": {
+              "nom_programme": "h3.card-program__title a",
+              "url": {
+                "selecteur": "h3.card-program__title a",
+                "attribut": "href"
+              },
+              "notes_agent": "h4.card-program__subtitle",
+              "organisme": {
+                "valeur": "Musicaction"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14"
+        },
+        {
+          "url": "https://musicaction.ca/programmes/page/2/",
+          "regles": {
+            "bloc": "article.card-program",
+            "champs": {
+              "nom_programme": "h3.card-program__title a",
+              "url": {
+                "selecteur": "h3.card-program__title a",
+                "attribut": "href"
+              },
+              "notes_agent": "h4.card-program__subtitle",
+              "organisme": {
+                "valeur": "Musicaction"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14"
+        },
+        {
+          "url": "https://musicaction.ca/programmes/page/3/",
+          "regles": {
+            "bloc": "article.card-program",
+            "champs": {
+              "nom_programme": "h3.card-program__title a",
+              "url": {
+                "selecteur": "h3.card-program__title a",
+                "attribut": "href"
+              },
+              "notes_agent": "h4.card-program__subtitle",
+              "organisme": {
+                "valeur": "Musicaction"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14 — si une page/4/ apparaît, l'ajouter ici"
+        },
+        {
+          "url": "https://musicaction.ca/dates-importantes/",
+          "regles": {
+            "bloc": "div.card-date",
+            "champs": {
+              "nom_programme": "h2",
+              "url": {
+                "selecteur": "a",
+                "attribut": "href"
+              },
+              "date_limite": ".card-date__number",
+              "organisme": {
+                "valeur": "Musicaction"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14 — prochaine échéance par programme (dates roulantes)"
+        }
+      ]
+    },
+    {
+      "id": "factor",
+      "nom": "FACTOR",
+      "palier": "Fédéral",
+      "actif": true,
+      "notes": "Volet anglophone/pancanadien du Fonds de la musique du Canada (développement d'artistes, spectacles et tournées) ; page dédiée au calendrier des dates limites. Site en anglais seulement.",
+      "pages": [
+        {
+          "url": "https://www.factor.ca/programs/artist-programs/",
+          "regles": {
+            "bloc": "article.card--program",
+            "champs": {
+              "nom_programme": "h2.card--program__title",
+              "url": {
+                "selecteur": "a.card--program__link",
+                "attribut": "href"
+              },
+              "date_limite": {
+                "selecteur": ".deadline"
+              },
+              "montant": {
+                "selecteur": ".card--program__excerpt",
+                "regex": "[$][0-9,]+(?:\\s?-\\s?[$][0-9,]+)?"
+              },
+              "notes_agent": ".card--program__excerpt",
+              "organisme": {
+                "valeur": "FACTOR"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14"
+        },
+        {
+          "url": "https://www.factor.ca/programs/community/",
+          "regles": {
+            "bloc": "article.card--program",
+            "champs": {
+              "nom_programme": "h2.card--program__title",
+              "url": {
+                "selecteur": "a.card--program__link",
+                "attribut": "href"
+              },
+              "date_limite": {
+                "selecteur": ".deadline"
+              },
+              "montant": {
+                "selecteur": ".card--program__excerpt",
+                "regex": "[$][0-9,]+(?:\\s?-\\s?[$][0-9,]+)?"
+              },
+              "notes_agent": ".card--program__excerpt",
+              "organisme": {
+                "valeur": "FACTOR"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14"
+        },
+        {
+          "url": "https://www.factor.ca/programs/company-programs/",
+          "regles": {
+            "bloc": "article.card--program",
+            "champs": {
+              "nom_programme": "h2.card--program__title",
+              "url": {
+                "selecteur": "a.card--program__link",
+                "attribut": "href"
+              },
+              "date_limite": {
+                "selecteur": ".deadline"
+              },
+              "montant": {
+                "selecteur": ".card--program__excerpt",
+                "regex": "[$][0-9,]+(?:\\s?-\\s?[$][0-9,]+)?"
+              },
+              "notes_agent": ".card--program__excerpt",
+              "organisme": {
+                "valeur": "FACTOR"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-14 — ne pas utiliser /deadlines/ (structure à plat, non scrapable)"
+        }
+      ]
+    },
+    {
+      "id": "fonds-radiostar",
+      "nom": "Fonds RadioStar / Radio Starmaker Fund",
+      "palier": "Fédéral",
+      "actif": true,
+      "notes": "Financement du marketing et de la promotion d'enregistrements pour artistes émergents (volet francophone : Fonds RadioStar) ; pertinent pour un volet musique avec artistes déjà diffusés à la radio.",
+      "pages": [
+        {
+          "url": "https://fondsradiostar.com/programmes/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "fondation-socan",
+      "nom": "Fondation SOCAN",
+      "palier": "Fédéral",
+      "actif": true,
+      "notes": "Bourses, prix et subventions pour créateurs de musique membres SOCAN (déplacement, commandes d'œuvres, développement de carrière) ; vise surtout les artistes individuels que l'OBNL soutient ou programme.",
+      "pages": [
+        {
+          "url": "https://www.fondationsocan.ca/grants/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "emplois-ete-canada",
+      "nom": "Emplois d'été Canada (EDSC)",
+      "palier": "Fédéral",
+      "actif": true,
+      "notes": "Subvention salariale (jusqu'à 100 % du salaire minimum pour les OBNL) pour embaucher des jeunes de 15-30 ans ; utile pour le personnel saisonnier d'événements, appel généralement à l'automne.",
+      "pages": [
+        {
+          "url": "https://www.canada.ca/fr/emploi-developpement-social/services/financement/emplois-ete-canada.html",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "desjardins-fonds-grand-mouvement",
+      "nom": "Desjardins — Fonds du Grand Mouvement",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Fonds majeur (engagements de ~280 M$ jusqu'en 2027) pour des projets structurants incluant la culture au Québec ; demande via la caisse régionale, sans date limite fixe.",
+      "pages": [
+        {
+          "url": "https://www.desjardins.com/fr/a-propos/communaute/developpement-collectif/fonds-grand-mouvement.html",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "fondation-mcconnell",
+      "nom": "Fondation McConnell",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Priorités : communautés, réconciliation, climat — subventions pluriannuelles importantes, mais pas de volet arts dédié ; pertinent seulement pour un projet culturel à forte portée sociale structurante.",
+      "pages": [
+        {
+          "url": "https://www.mcconnellfoundation.ca/fr/obtenir-des-contributions/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "fondation-azrieli",
+      "nom": "Fondation Azrieli — Musique, arts et culture",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Axe prioritaire dédié musique/arts/culture (excellence artistique, éducation musicale, artistes émergents, arts et santé) ; le processus de demande passe par un contact direct plutôt qu'un appel affiché.",
+      "pages": [
+        {
+          "url": "https://azrielifoundation.org/fr/nosaxesprioritaires/musique-arts-culture/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "fonds-cogeco",
+      "nom": "Fonds Cogeco",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Mission énoncée : culture et arts, éducation, santé et initiatives communautaires — Cogeco est bien implanté à Trois-Rivières ; vérifier l'état courant du programme avant de déposer.",
+      "pages": [
+        {
+          "url": "https://corpo.cogeco.com/cgo/fr/fonds-cogeco/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "rbc-artistes-emergents",
+      "nom": "RBC Fondation — Artistes émergents",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Programme Artistes émergents RBC couvrant musique, danse, théâtre, arts visuels et littérature ; financement d'organismes qui font le pont entre formation et carrière professionnelle des artistes.",
+      "pages": [
+        {
+          "url": "https://www.rbc.com/notre-impact/artistes-emergents/artistes-emergents-ressources-partenaires.html",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "td-prets-a-agir",
+      "nom": "TD — La promesse Prêts à agir",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Quatre dates limites annuelles (janvier, avril, juillet, octobre) ; le pilier Collectivités branchées peut financer des projets culturels inclusifs, max ~20 % du budget d'exploitation.",
+      "pages": [
+        {
+          "url": "https://www.td.com/ca/fr/a-propos-de-la-td/la-promesse-a-agir/demande-de-financement",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "fondation-bombardier",
+      "nom": "Fondation J. Armand Bombardier",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Les arts et la culture figurent parmi les axes explicites de dons de la fondation ; demandes via une plateforme en ligne (création de compte requise).",
+      "pages": [
+        {
+          "url": "https://philanthropie.fondationbombardier.ca/fr/soumettre-une-demande/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "hydro-quebec-dons-commandites",
+      "nom": "Hydro-Québec — Dons et commandites",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Soutien historique important à la culture au Québec (théâtre, danse, musique) ; demandes en tout temps via formulaire en ligne, dépôt recommandé au moins 90 jours avant l'activité.",
+      "pages": [
+        {
+          "url": "https://www.hydroquebec.com/dons-commandites/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "fondation-beati",
+      "nom": "Fondation Béati",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Financement triennal non restrictif (~30 000 $/an) axé transformation sociale ; admissible pour un projet culturel à forte dimension d'inclusion sociale, appel annuel avec dépôt en janvier.",
+      "pages": [
+        {
+          "url": "https://fondationbeati.org/financements/programme-regulier/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "power-corporation-dons",
+      "nom": "Power Corporation — Demandes de dons",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Arts et culture est l'un des cinq secteurs d'investissement explicites (près du tiers des dons) ; portail de demandes ouvert par fenêtres — surveiller les dates de réouverture affichées.",
+      "pages": [
+        {
+          "url": "https://powercorporationcommunity.com/fr/demandes-de-dons/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "imagine-canada-grant-connect",
+      "nom": "Imagine Canada — ConnexionSubvention",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Base de données payante répertoriant plus de 10 000 fondations canadiennes et programmes de dons corporatifs ; outil de prospection pour identifier d'autres bailleurs privés pertinents.",
+      "pages": [
+        {
+          "url": "https://www.imaginecanada.ca/fr/connexionsubvention",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    },
+    {
+      "id": "subventions-obnl-repertoire",
+      "nom": "Subventions-OBNL.ca — Répertoire arts et culture Québec",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Répertoire québécois gratuit agrégeant les sources publiques (MCC, CALQ, SODEC, Patrimoine canadien) et privées pour OBNL culturels ; bon point de départ de veille, à recouper avec les sources officielles.",
+      "pages": [
+        {
+          "url": "https://subventions-obnl.ca/repertoire-des-subventions-pour-obnl/",
+          "regles": null,
+          "statut_regles": "à écrire"
+        }
+      ]
+    }
+  ]
+}

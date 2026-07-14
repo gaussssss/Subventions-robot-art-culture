@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+.venv-windows/
+venv/
+.pytest_cache/
+
+# Secrets, sorties et journaux locaux
+.env
+sortie/
+journaux/
+compte-service*.json
+service-account*.json
+
+# Fichiers locaux Claude Code
+.claude/
