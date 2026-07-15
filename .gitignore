@@ -7,6 +7,12 @@ __pycache__/
 venv/
 .pytest_cache/
 
+# Extractions manuelles de travail (jamais committées)
+ManualExtractions/
+
+# macOS
+.DS_Store
+
 # Secrets, sorties et journaux locaux
 .env
 sortie/
