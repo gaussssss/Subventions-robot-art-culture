@@ -214,6 +214,31 @@ def test_extraire_page_sans_bloc_ni_url():
     ]
 
 
+def test_extraire_page_titre_depuis_slug():
+    from veille.extracteur import extraire_page
+
+    # Repli sur le plan de site (sitemap XML) quand la page-liste est en JavaScript :
+    # le nom lisible est reconstruit à partir de l'identifiant d'URL.
+    sitemap = (
+        "<urlset><url><loc>https://arts.org/aides/programmes/sejour-artiste-2026</loc></url>"
+        "<url><loc>https://arts.org/aides/programmes/</loc></url></urlset>"
+    )
+    regles = {
+        "bloc": "url",
+        "champs": {
+            "nom_programme": {
+                "selecteur": "loc",
+                "regex": r"programmes/([a-z0-9-]+)",
+                "titre_depuis_slug": True,
+            },
+            "url": {"selecteur": "loc"},
+        },
+    }
+    elements = extraire_page(sitemap, regles, "https://arts.org/sitemap.xml")
+    assert len(elements) == 1  # l'URL sans slug (la racine) n'a pas de nom
+    assert elements[0]["nom_programme"] == "Sejour artiste 2026"
+
+
 def test_extraction_puis_validation_pydantic():
     from veille.extracteur import extraire_page
 

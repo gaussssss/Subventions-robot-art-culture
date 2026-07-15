@@ -595,7 +595,7 @@
       "nom": "CALQ — Programmes pour organismes",
       "palier": "Provincial",
       "actif": true,
-      "notes": "Source provinciale centrale : page-filtre listant tous les programmes pour organismes (soutien à la mission, projets, diffusion) par discipline, région et statut ouvert/fermé.",
+      "notes": "Source provinciale centrale : page-filtre listant tous les programmes pour organismes (soutien à la mission, projets, diffusion) par discipline, région et statut ouvert/fermé. Filtre régional retiré le 2026-07-15 à la demande de l'utilisateur (couverture maximale) : les Partenariats territoriaux de toutes les régions remontent désormais, pas seulement la Mauricie.",
       "pages": [
         {
           "url": "https://www.calq.gouv.qc.ca/aide-financiere/programmes-daides-financiere/organismes?tx_solr%5BresultsPerPage%5D=96",
@@ -616,10 +616,7 @@
               "organisme": {
                 "valeur": "CALQ"
               }
-            },
-            "exclure_si": [
-              "(?i)^(?!.*mauricie).*partenariat territorial"
-            ]
+            }
           },
           "statut_regles": "testées 2026-07-14 — resultsPerPage=96 indispensable (12 résultats par défaut, 83 programmes)"
         }
@@ -1694,6 +1691,1263 @@
                 "regex": "(?i)(\\d{1,2}(?:er)?\\s+[a-zàâçéèêëîïôùûü]+\\.?\\s+\\d{4}|(?:en\\s+)?continu\\b)"
               },
               "notes_agent": "span.rp-prog-sub"
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "fondation-cypihot-ouellette",
+      "nom": "Fondation Cypihot-Ouellette",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://cypihotouellette.org/faire-une-demande/",
+          "regles": {
+            "bloc": "div.section-col",
+            "champs": {
+              "nom_programme": "h3",
+              "url": {
+                "selecteur": "a",
+                "attribut": "href"
+              },
+              "notes_agent": {
+                "selecteur": "p",
+                "regex": "^(.{1,300})"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "Fondation Cypihot-Ouellette"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "fondation-trois-rivieres-durable",
+      "nom": "Fondation Trois-Rivières durable — Éclore fonds environnement",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://3rdurable.org/subvention-eclore/",
+          "regles": {
+            "champs": {
+              "nom_programme": {
+                "valeur": "Subvention Éclore — fonds environnement Trois-Rivières"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "Fondation Trois-Rivières durable"
+              },
+              "notes_agent": {
+                "selecteur": "#main-content",
+                "regex": "((?:Message important|Pas d.appel de projets).{0,220})"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        },
+        {
+          "url": "https://3rdurable.org/ped/",
+          "regles": {
+            "champs": {
+              "nom_programme": {
+                "valeur": "Programme d'économie durable (PED)"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "Fondation Trois-Rivières durable"
+              },
+              "notes_agent": {
+                "selecteur": "#main-content",
+                "regex": "Description du programme\\s*(.{1,280})"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        },
+        {
+          "url": "https://3rdurable.org/psspe/",
+          "regles": {
+            "champs": {
+              "nom_programme": {
+                "valeur": "Programme de soutien à la sensibilisation aux pratiques écoresponsables (PSSPE)"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "Fondation Trois-Rivières durable"
+              },
+              "notes_agent": {
+                "selecteur": "#main-content",
+                "regex": "((?:Description du programme|Message important).{0,260})"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "cqpv-patrimoine-vivant",
+      "nom": "Conseil québécois du patrimoine vivant (CQPV)",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://www.patrimoinevivant.qc.ca/programmes",
+          "regles": {
+            "bloc": "div.slide-item:not(:has(a[href*='/projets/']))",
+            "champs": {
+              "nom_programme": "h3",
+              "url": {
+                "selecteur": "a",
+                "attribut": "href"
+              },
+              "notes_agent": {
+                "selecteur": "p",
+                "regex": "^(.{1,280})"
+              },
+              "organisme": {
+                "valeur": "Conseil québécois du patrimoine vivant"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "centraide-mauricie",
+      "nom": "Centraide Mauricie",
+      "palier": "Régional",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://centraide-rcoq.ca/mauricie/deposer-une-demande-de-soutien-financier/",
+          "regles": {
+            "champs": {
+              "nom_programme": {
+                "valeur": "Soutien financier aux organismes (mission, action collective, demande ponctuelle)"
+              },
+              "type": {
+                "valeur": "Fonctionnement"
+              },
+              "organisme": {
+                "valeur": "Centraide Mauricie"
+              },
+              "date_limite": {
+                "selecteur": "main",
+                "regex": "P[ée]riode d.ouverture des demandes\\s*:\\s*\\d{1,2}\\s+\\S+\\s+\\d{4}\\s+au\\s+(\\d{1,2}\\s+\\S+\\s+\\d{4})"
+              },
+              "notes_agent": {
+                "selecteur": "main",
+                "regex": "(Soutien à la mission\\s*:.{0,240})"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "fondation-aveugles-quebec",
+      "nom": "Fondation des Aveugles du Québec",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://fondationdesaveugles.org/nos-services/aide-financiere/",
+          "regles": {
+            "bloc": "article",
+            "champs": {
+              "nom_programme": {
+                "valeur": "Fonds Marguerite Monastesse"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "Fondation des Aveugles du Québec"
+              },
+              "notes_agent": {
+                "regex": "(Ce fonds contribuera.{0,260})"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "urls-mauricie",
+      "nom": "Unité régionale de loisir et de sport de la Mauricie (URLSM)",
+      "palier": "Régional",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://www.urlsmauricie.com/programme/soutienfinancier/",
+          "regles": {
+            "bloc": "h2",
+            "champs": {
+              "nom_programme": {
+                "regex": "^(.{1,120})"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "URLS de la Mauricie"
+              }
+            },
+            "exclure_si": [
+              "(?i)répertoire provincial",
+              "(?i)^soutien financier pour les personnes"
+            ]
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "faqdd",
+      "nom": "Fonds d'action québécois pour le développement durable (FAQDD)",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://faqdd.qc.ca/nos-programmes/",
+          "regles": {
+            "bloc": "div.work-item",
+            "champs": {
+              "nom_programme": "h3",
+              "url": {
+                "selecteur": "a",
+                "attribut": "href"
+              },
+              "notes_agent": {
+                "selecteur": "p",
+                "regex": "^(.{1,280})"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "FAQDD"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "fondation-dufresne-gauthier",
+      "nom": "Fondation Dufresne et Gauthier",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://fdg.ca/pages/criteres-dattribution",
+          "regles": {
+            "champs": {
+              "nom_programme": {
+                "valeur": "Soutien aux projets pour le mieux-être des enfants"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "Fondation Dufresne et Gauthier"
+              },
+              "date_limite": {
+                "selecteur": "main",
+                "regex": "reprendront le\\s+(\\d{1,2}(?:er)?\\s+\\S+\\s+\\d{4})"
+              },
+              "notes_agent": {
+                "selecteur": "main",
+                "regex": "(Veuillez noter[^*]{0,280})"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "conseil-patrimoine-religieux",
+      "nom": "Conseil du patrimoine religieux du Québec (CPRQ)",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://www.patrimoine-religieux.qc.ca/aide-financiere/",
+          "regles": {
+            "bloc": "div.block-image-text",
+            "champs": {
+              "nom_programme": "h3",
+              "url": {
+                "selecteur": "a[href*='programme']",
+                "attribut": "href"
+              },
+              "notes_agent": {
+                "selecteur": "p",
+                "regex": "^(.{1,280})"
+              },
+              "type": {
+                "valeur": "Immobilisation"
+              },
+              "organisme": {
+                "valeur": "Conseil du patrimoine religieux du Québec"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "conseil-arts-montreal",
+      "nom": "Conseil des arts de Montréal (CAM)",
+      "palier": "Municipal",
+      "actif": true,
+      "notes": "Réservé aux artistes, collectifs et OBNL artistiques de l'île de Montréal. La liste des ~52 programmes (artsmontreal.org/aides/programmes/) est chargée en JavaScript ; on scrape le sitemap XML WordPress (program-sitemap.xml), rendu côté serveur, qui référence chaque fiche de programme. Le nom extrait est le slug d'URL (ex. « aide-projets-collectifs-artistes ») ; les fiches anglaises (/en/grants/) sont ignorées. Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://www.artsmontreal.org/program-sitemap.xml",
+          "regles": {
+            "bloc": "url",
+            "champs": {
+              "nom_programme": {
+                "selecteur": "loc",
+                "regex": "aides/programmes/([a-z0-9-]+)",
+                "titre_depuis_slug": true
+              },
+              "url": {
+                "selecteur": "loc"
+              },
+              "organisme": {
+                "valeur": "Conseil des arts de Montréal"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "dec-quebec",
+      "nom": "Développement économique Canada pour les régions du Québec (DEC)",
+      "palier": "Fédéral",
+      "actif": true,
+      "notes": "Page « Financement et services » : PDEQ, CERI, PDC, mutualisation en économie sociale, entrepreneuriat des communautés noires, croissance du tourisme, etc. Ouvert aux OBNL et PME de toutes les régions du Québec (dépôt continu pour plusieurs programmes). Le libellé d'état (« Accepte les demandes ») est dans notes_agent. Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://www.canada.ca/fr/developpement-economique-regions-quebec/financement-services.html",
+          "regles": {
+            "bloc": "main div.col-md-4",
+            "champs": {
+              "nom_programme": "h3",
+              "url": {
+                "selecteur": "a",
+                "attribut": "href"
+              },
+              "notes_agent": "p",
+              "organisme": {
+                "valeur": "Développement économique Canada pour les régions du Québec (DEC)"
+              }
+            },
+            "exclure_si": [
+              "(?i)services d'information",
+              "(?i)occasions d'affaires",
+              "(?i)blogue"
+            ]
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "mapaq-aide-financiere",
+      "nom": "MAPAQ — Aide financière en agriculture et agroalimentaire",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Portail « Aide financière en agriculture » du MAPAQ sur Québec.ca : Proximité, PADAAR, développement territorial et sectoriel, transformation, etc. Ouvert aux entreprises et OBNL du secteur bioalimentaire de tout le Québec. Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/agriculture/aide-financiere",
+          "regles": {
+            "bloc": "div.sous-theme",
+            "champs": {
+              "nom_programme": "h2.sous-theme-titre",
+              "url": {
+                "selecteur": "a.sous-theme-page-lien",
+                "attribut": "href"
+              },
+              "organisme": {
+                "valeur": "Ministère de l'Agriculture, des Pêcheries et de l'Alimentation (MAPAQ)"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "melccfp-programmes",
+      "nom": "MELCCFP — Programmes et appels de projets en environnement",
+      "palier": "Provincial",
+      "actif": true,
+      "domaines_supplementaires": [
+        "ceaeq.gouv.qc.ca",
+        "quebec.ca"
+      ],
+      "notes": "Page « Programmes et appels de projets » du ministère de l'Environnement : Action-Climat Québec, soutien à la mission des organismes environnementaux, économie circulaire, etc. Ouvert à tout le Québec. Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://www.environnement.gouv.qc.ca/programmes/",
+          "regles": {
+            "bloc": "td li a:not([href^='#'])",
+            "champs": {
+              "nom_programme": {},
+              "url": {
+                "attribut": "href"
+              },
+              "organisme": {
+                "valeur": "Ministère de l'Environnement (MELCCFP)"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "ville-montreal-programmes",
+      "nom": "Ville de Montréal — Répertoire des programmes",
+      "palier": "Municipal",
+      "actif": true,
+      "notes": "Réservé en général aux organismes, entreprises et citoyens montréalais. Répertoire officiel filtré par type : Subvention (SUBV), Appel à projets (APPR), Prix et concours (PEDT). Le filtre multi-valeurs renvoie une erreur 500, d'où une série de pages par type. La pagination (12 résultats/page) peut s'allonger : ajouter des pages si le site en annonce plus. Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://montreal.ca/programmes?mtl_content.programs.type.code=SUBV",
+          "regles": {
+            "bloc": "li.list-element",
+            "champs": {
+              "nom_programme": ".card-title",
+              "url": {
+                "selecteur": "a.card",
+                "attribut": "href"
+              },
+              "organisme": {
+                "valeur": "Ville de Montréal"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        },
+        {
+          "url": "https://montreal.ca/programmes?mtl_content.programs.type.code=SUBV&page=2",
+          "regles": {
+            "bloc": "li.list-element",
+            "champs": {
+              "nom_programme": ".card-title",
+              "url": {
+                "selecteur": "a.card",
+                "attribut": "href"
+              },
+              "organisme": {
+                "valeur": "Ville de Montréal"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        },
+        {
+          "url": "https://montreal.ca/programmes?mtl_content.programs.type.code=SUBV&page=3",
+          "regles": {
+            "bloc": "li.list-element",
+            "champs": {
+              "nom_programme": ".card-title",
+              "url": {
+                "selecteur": "a.card",
+                "attribut": "href"
+              },
+              "organisme": {
+                "valeur": "Ville de Montréal"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        },
+        {
+          "url": "https://montreal.ca/programmes?mtl_content.programs.type.code=APPR",
+          "regles": {
+            "bloc": "li.list-element",
+            "champs": {
+              "nom_programme": ".card-title",
+              "url": {
+                "selecteur": "a.card",
+                "attribut": "href"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "Ville de Montréal"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        },
+        {
+          "url": "https://montreal.ca/programmes?mtl_content.programs.type.code=APPR&page=2",
+          "regles": {
+            "bloc": "li.list-element",
+            "champs": {
+              "nom_programme": ".card-title",
+              "url": {
+                "selecteur": "a.card",
+                "attribut": "href"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "Ville de Montréal"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        },
+        {
+          "url": "https://montreal.ca/programmes?mtl_content.programs.type.code=APPR&page=3",
+          "regles": {
+            "bloc": "li.list-element",
+            "champs": {
+              "nom_programme": ".card-title",
+              "url": {
+                "selecteur": "a.card",
+                "attribut": "href"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "Ville de Montréal"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        },
+        {
+          "url": "https://montreal.ca/programmes?mtl_content.programs.type.code=APPR&page=4",
+          "regles": {
+            "bloc": "li.list-element",
+            "champs": {
+              "nom_programme": ".card-title",
+              "url": {
+                "selecteur": "a.card",
+                "attribut": "href"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "Ville de Montréal"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        },
+        {
+          "url": "https://montreal.ca/programmes?mtl_content.programs.type.code=APPR&page=5",
+          "regles": {
+            "bloc": "li.list-element",
+            "champs": {
+              "nom_programme": ".card-title",
+              "url": {
+                "selecteur": "a.card",
+                "attribut": "href"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "Ville de Montréal"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        },
+        {
+          "url": "https://montreal.ca/programmes?mtl_content.programs.type.code=APPR&page=6",
+          "regles": {
+            "bloc": "li.list-element",
+            "champs": {
+              "nom_programme": ".card-title",
+              "url": {
+                "selecteur": "a.card",
+                "attribut": "href"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "Ville de Montréal"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        },
+        {
+          "url": "https://montreal.ca/programmes?mtl_content.programs.type.code=APPR&page=7",
+          "regles": {
+            "bloc": "li.list-element",
+            "champs": {
+              "nom_programme": ".card-title",
+              "url": {
+                "selecteur": "a.card",
+                "attribut": "href"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "organisme": {
+                "valeur": "Ville de Montréal"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        },
+        {
+          "url": "https://montreal.ca/programmes?mtl_content.programs.type.code=PEDT",
+          "regles": {
+            "bloc": "li.list-element",
+            "champs": {
+              "nom_programme": ".card-title",
+              "url": {
+                "selecteur": "a.card",
+                "attribut": "href"
+              },
+              "organisme": {
+                "valeur": "Ville de Montréal"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        },
+        {
+          "url": "https://montreal.ca/programmes?mtl_content.programs.type.code=PEDT&page=2",
+          "regles": {
+            "bloc": "li.list-element",
+            "champs": {
+              "nom_programme": ".card-title",
+              "url": {
+                "selecteur": "a.card",
+                "attribut": "href"
+              },
+              "organisme": {
+                "valeur": "Ville de Montréal"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        },
+        {
+          "url": "https://montreal.ca/demarches/proposer-un-projet-artistique-aux-maisons-de-la-culture",
+          "regles": {
+            "champs": {
+              "nom_programme": "h1",
+              "type": {
+                "valeur": "Projet"
+              },
+              "discipline": {
+                "valeur": "Arts de la scène / arts visuels"
+              },
+              "organisme": {
+                "valeur": "Ville de Montréal — Maisons de la culture"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "tourisme-mauricie-financement",
+      "nom": "Tourisme Mauricie — Programmes de financement",
+      "palier": "Régional",
+      "actif": true,
+      "domaines_supplementaires": [
+        "fondsecoleader.ca",
+        "keroul.qc.ca",
+        "quebec.ca",
+        "tourismelaval.com",
+        "viragedurable.com"
+      ],
+      "notes": "Réservé aux entreprises et OBNL touristiques de la Mauricie (certains volets réservés aux membres). Page « Programmes de financement » : commandites/entente de partenariat financier, EPRTNT régional, et relais vers Fonds Écoleader, PAET (Kéroul), Virage durable, etc. Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://tourismemauricie.com/espace-membres/programmes-de-financement",
+          "regles": {
+            "bloc": "div.c-accordions__item",
+            "champs": {
+              "nom_programme": ".c-accordions__title__toggler__label",
+              "url": {
+                "selecteur": ".c-accordions__content__buttons--button a",
+                "attribut": "href"
+              },
+              "organisme": {
+                "valeur": "Tourisme Mauricie"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "ministere-tourisme-quebec",
+      "nom": "Ministère du Tourisme du Québec — Aide financière",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Portail « Aide financière en tourisme » : PAFET (festivals et événements), EPRTNT, PAET (accessibilité), fonds de développement, tourisme d'affaires, etc. Ouvert aux OBNL de tout le Québec. Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://www.quebec.ca/tourisme-loisirs-sport/services-industrie-touristique/aide-financiere",
+          "regles": {
+            "bloc": "div.sous-theme",
+            "champs": {
+              "nom_programme": "h2.sous-theme-titre",
+              "url": {
+                "selecteur": "a.sous-theme-page-lien",
+                "attribut": "href"
+              },
+              "organisme": {
+                "valeur": "Ministère du Tourisme du Québec"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "assnat-programmation-citoyenne",
+      "nom": "Assemblée nationale du Québec — Programmation citoyenne",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://www.assnat.qc.ca/fr/visiteurs/appel-de-projets-programmation-citoyenne.html",
+          "regles": {
+            "bloc": "div.colonneImbriquee.imbGauche",
+            "champs": {
+              "nom_programme": {
+                "valeur": "Appel de projets — Programmation citoyenne"
+              },
+              "organisme": {
+                "valeur": "Assemblée nationale du Québec"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "date_limite": {
+                "regex": "jusqu[’']au\\s+(\\d{1,2}(?:er)?\\s+\\S+\\s+\\d{4})"
+              },
+              "notes_agent": {
+                "regex": "^(.{1,280})"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "ciusss-mcq-etre-mieux-ensemble",
+      "nom": "CIUSSS MCQ — Être mieux… ensemble!",
+      "palier": "Régional",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://ciusssmcq.ca/conseils-sante/etre-mieux-ensemble/",
+          "regles": {
+            "bloc": "div.main-content",
+            "champs": {
+              "nom_programme": {
+                "valeur": "Être mieux… ensemble! — Soutien financier d'initiatives des communautés"
+              },
+              "organisme": {
+                "valeur": "CIUSSS de la Mauricie-et-du-Centre-du-Québec"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "notes_agent": {
+                "regex": "(La démarche Être mieux.{0,240})"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "fondation-monique-fitz-back",
+      "nom": "Fondation Monique-Fitz-Back",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://fondationmf.ca/nos-actions/aide-financiere/",
+          "regles": {
+            "bloc": "main",
+            "champs": {
+              "nom_programme": "h1",
+              "organisme": {
+                "valeur": "Fondation Monique-Fitz-Back"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "notes_agent": {
+                "regex": "(La Fondation Monique-Fitz-Back finance.{0,220}|L[’']appel à projets pour l[’']édition.{0,220})"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        },
+        {
+          "url": "https://fondationmf.ca/nos-actions/bourse-samare/",
+          "regles": {
+            "bloc": "main",
+            "champs": {
+              "nom_programme": "h1",
+              "organisme": {
+                "valeur": "Fondation Monique-Fitz-Back"
+              },
+              "notes_agent": {
+                "regex": "^(.{1,280})"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "codes-dacces",
+      "nom": "Codes d'accès — Appels à projets",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://codesdacces.org/appels-a-projets/",
+          "regles": {
+            "bloc": "div.wp-block-kadence-column",
+            "champs": {
+              "nom_programme": "h2",
+              "organisme": {
+                "valeur": "Codes d'accès"
+              },
+              "discipline": {
+                "valeur": "Musique"
+              },
+              "date_limite": {
+                "regex": "(?i)date limite[^:]{0,40}:?\\s*(?:le\\s+)?(\\d{1,2}(?:er)?\\s+\\S+\\s+\\d{4})"
+              },
+              "notes_agent": {
+                "selecteur": "p",
+                "regex": "^(.{1,240})"
+              }
+            },
+            "exclure_si": [
+              "(?i)^appel à projets ouverts",
+              "(?i)gardez l[’']accès"
+            ]
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "cql-prix-reconnaissance",
+      "nom": "Conseil québécois du loisir — Prix Reconnaissance en loisir",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://www.loisirquebec.com/fr/prix-reconnaissance",
+          "regles": {
+            "champs": {
+              "nom_programme": "h1",
+              "organisme": {
+                "valeur": "Conseil québécois du loisir"
+              },
+              "notes_agent": {
+                "regex": "(Organismes et personnes visés.{0,240})"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "reseau-urls-repertoire-subventions",
+      "nom": "Réseau des URLS — Répertoire des subventions (loisir, sport, culture)",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://reseau-urls.quebec/outils/subvention/",
+          "regles": {
+            "bloc": "section.elementor-section:not(.elementor-inner-section)",
+            "champs": {
+              "nom_programme": "h3",
+              "organisme": "p.elementor-heading-title",
+              "date_limite": {
+                "regex": "(\\d{1,2}(?:er)?\\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\\s+\\d{4}|[Ee]n continu)"
+              },
+              "notes_agent": "div.elementor-heading-title"
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "prompt-quebec",
+      "nom": "Prompt — Programmes de financement",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://promptinnov.com/programmes-de-financement/",
+          "regles": {
+            "bloc": "li.nav-item a.nav-item__link[href*='/programmes-de-financement/']",
+            "champs": {
+              "nom_programme": {
+                "regex": "^(.{1,120})"
+              },
+              "url": {
+                "attribut": "href"
+              },
+              "organisme": {
+                "valeur": "Prompt"
+              }
+            },
+            "exclure_si": [
+              "^Programmes de financement$"
+            ]
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "prima-quebec",
+      "nom": "PRIMA Québec — Programmes de financement",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://www.prima.ca/programmes-de-financement/",
+          "regles": {
+            "bloc": "a.et_pb_button",
+            "champs": {
+              "nom_programme": {
+                "regex": "^(.{1,120})"
+              },
+              "url": {
+                "attribut": "href"
+              },
+              "organisme": {
+                "valeur": "PRIMA Québec"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "mitacs",
+      "nom": "Mitacs — Programmes",
+      "palier": "Fédéral",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://www.mitacs.ca/fr-ca/ressources-pour-les-programmes/programmes/",
+          "regles": {
+            "bloc": "article.loop-program",
+            "champs": {
+              "nom_programme": "h3",
+              "url": {
+                "selecteur": "a",
+                "attribut": "href"
+              },
+              "organisme": {
+                "valeur": "Mitacs"
+              },
+              "notes_agent": {
+                "selecteur": "p",
+                "regex": "^(.{1,240})"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "digital-supercluster",
+      "nom": "DIGITAL (Digital Supercluster) — Calls for Proposals",
+      "palier": "Fédéral",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://digitalsupercluster.ca/innovate-with-us/call-for-projects/",
+          "regles": {
+            "bloc": "div.block__content",
+            "champs": {
+              "nom_programme": {
+                "selecteur": "h2",
+                "regex": "^(Call for .*)"
+              },
+              "url": {
+                "selecteur": "a[href*='digitalsupercluster.ca']",
+                "attribut": "href"
+              },
+              "organisme": {
+                "valeur": "DIGITAL Global Innovation Cluster"
+              },
+              "notes_agent": {
+                "selecteur": "p",
+                "regex": "^(.{1,240})"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "hexagram",
+      "nom": "Hexagram — Appels (recherche-création)",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://hexagram.ca/fr/categorie/members-news-appel/",
+          "regles": {
+            "bloc": "article.content-archive",
+            "champs": {
+              "nom_programme": "h2",
+              "url": {
+                "selecteur": "a",
+                "attribut": "href"
+              },
+              "organisme": {
+                "valeur": "Hexagram"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "crim-declic-ia",
+      "nom": "CRIM — DÉCLIC IA",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://www.crim.ca/fr/declic-ia/",
+          "regles": {
+            "bloc": "div.elementor-widget-theme-post-content",
+            "champs": {
+              "nom_programme": {
+                "valeur": "DÉCLIC IA — Accompagnement au déploiement de l'IA"
+              },
+              "organisme": {
+                "valeur": "CRIM"
+              },
+              "date_limite": {
+                "regex": "[Dd]ate limite de dépôt des candidatures\\s*:\\s*(\\d{1,2}(?:er)?\\s+\\S+\\s+\\d{4})"
+              },
+              "notes_agent": {
+                "regex": "^(.{1,280})"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "zu-montreal",
+      "nom": "Zú — Programmes (créativité numérique)",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://zumtl.com/fr/programmes/",
+          "regles": {
+            "bloc": "div.relative.overflow-hidden.box-border",
+            "champs": {
+              "nom_programme": "span.font-drukwide",
+              "url": {
+                "selecteur": "a",
+                "attribut": "href"
+              },
+              "organisme": {
+                "valeur": "Zú (Montréal)"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "caisse-economie-solidaire",
+      "nom": "Caisse d'économie solidaire Desjardins — Dons et commandites",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://caissesolidaire.coop/dons-et-commandites/demander-un-don-ou-une-commandite/",
+          "regles": {
+            "bloc": "main",
+            "champs": {
+              "nom_programme": "h1",
+              "organisme": {
+                "valeur": "Caisse d'économie solidaire Desjardins"
+              },
+              "notes_agent": {
+                "regex": "^(.{1,280})"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "banque-nationale-commandites",
+      "nom": "Banque Nationale — Commandites",
+      "palier": "Privé",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://www.bnc.ca/a-propos-de-nous/esg/commandites.html",
+          "regles": {
+            "bloc": "main",
+            "champs": {
+              "nom_programme": "h1",
+              "organisme": {
+                "valeur": "Banque Nationale du Canada"
+              },
+              "notes_agent": {
+                "regex": "^(.{1,280})"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "odyssart-ofqj",
+      "nom": "Odyssart (OFQJ) — Appel à projets France-Québec",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://odyssart.org/soumettre-un-projet/",
+          "regles": {
+            "bloc": "main",
+            "champs": {
+              "nom_programme": {
+                "valeur": "Appel à projets Odyssart — coopération artistique France-Québec"
+              },
+              "organisme": {
+                "valeur": "OFQJ — Odyssart"
+              },
+              "type": {
+                "valeur": "Projet"
+              },
+              "notes_agent": {
+                "regex": "(L[’']appel à projets Odyssart.{0,240})"
+              }
+            }
+          },
+          "statut_regles": "testées 2026-07-15"
+        }
+      ]
+    },
+    {
+      "id": "quebec-aide-financiere-entreprises-organismes",
+      "nom": "Québec.ca — Liste partielle des aides financières (entreprises et organismes)",
+      "palier": "Provincial",
+      "actif": true,
+      "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
+      "pages": [
+        {
+          "url": "https://www.quebec.ca/entreprises-et-travailleurs-autonomes/liste-partielle-aide-financiere",
+          "regles": {
+            "bloc": "div.gabarit-sans-menu div.frame p a[href^='/']",
+            "champs": {
+              "nom_programme": {
+                "regex": "^(.{1,140})"
+              },
+              "url": {
+                "attribut": "href"
+              },
+              "organisme": {
+                "valeur": "Gouvernement du Québec"
+              }
             }
           },
           "statut_regles": "testées 2026-07-15"

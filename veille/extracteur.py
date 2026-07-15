@@ -24,8 +24,12 @@ Schéma des règles d'une page :
 
 Notes :
 - `champs` accepte une chaîne (raccourci pour {"selecteur": ...}) ou un objet
-  {selecteur, attribut, regex, valeur}. `regex` garde le groupe 1 s'il existe,
-  sinon la correspondance entière ; aucune correspondance → champ vide.
+  {selecteur, attribut, regex, valeur, titre_depuis_slug}. `regex` garde le
+  groupe 1 s'il existe, sinon la correspondance entière ; aucune correspondance
+  → champ vide.
+- `titre_depuis_slug: true` transforme un identifiant d'URL en libellé lisible
+  (« sejour-artiste-2026 » → « Sejour artiste 2026 ») ; utile quand la vraie
+  page-liste est en JavaScript et qu'on se rabat sur le plan de site (sitemap).
 - Pour le champ `url`, l'attribut par défaut est `href` si la cible est un lien,
   et les URL relatives sont résolues par rapport à la page.
 - `bloc` absent → la page entière est un seul bloc (fiche de programme unique).
@@ -39,18 +43,24 @@ import json
 import logging
 import re
 import time
+import warnings
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 from urllib.parse import urljoin
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
 from pydantic import ValidationError
 
 from .models import ProgrammeExtrait, extraire_domaine
 
 logger = logging.getLogger(__name__)
+
+# Certaines sources n'exposent leur liste de programmes que dans leur plan de site
+# (sitemap XML) quand la page HTML est rendue en JavaScript : on le parse alors
+# volontairement avec lxml, sans le bruit de l'avertissement.
+warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
 ENTETES = {
     "User-Agent": "Mozilla/5.0 (compatible; VeilleSubventions/2.0; OBNL culturel Mauricie)",
@@ -144,12 +154,14 @@ def recuperer(url: str, tentatives: int = TENTATIVES) -> str:
 
 def _normaliser_spec(spec) -> dict:
     if isinstance(spec, str):
-        return {"selecteur": spec, "attribut": None, "regex": None, "valeur": None}
+        return {"selecteur": spec, "attribut": None, "regex": None, "valeur": None,
+                "titre_depuis_slug": False}
     return {
         "selecteur": spec.get("selecteur"),
         "attribut": spec.get("attribut"),
         "regex": spec.get("regex"),
         "valeur": spec.get("valeur"),
+        "titre_depuis_slug": bool(spec.get("titre_depuis_slug")),
     }
 
 
@@ -169,6 +181,9 @@ def _extraire_champ(bloc, spec: dict, nom_champ: str) -> str | None:
         if not correspondance:
             return None
         brut = correspondance.group(1) if correspondance.groups() else correspondance.group(0)
+    if spec.get("titre_depuis_slug"):
+        brut = re.sub(r"[-_]+", " ", brut).strip()
+        brut = brut[:1].upper() + brut[1:] if brut else brut
     brut = re.sub(r"\s+", " ", brut).strip()
     return brut or None
 
