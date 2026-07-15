@@ -94,6 +94,20 @@ python -m veille.main --console --sources culture-mauricie
 Les résultats de chaque collecte sont aussi sauvegardés dans
 `sortie/resultats-AAAA-MM-JJ.json`.
 
+**Vérification visuelle dans Excel** — pour voir le résultat final (mêmes
+colonnes et tri que le futur Google Sheet) avant de brancher quoi que ce soit :
+
+```bash
+pip install openpyxl                                     # une seule fois (inclus dans [dev])
+python scripts/exporter_excel.py                         # collecte fraîche → sortie/veille-subventions-AAAA-MM-JJ.xlsx
+python scripts/exporter_excel.py --reprendre             # réutilise la dernière collecte, sans re-scraper
+python scripts/exporter_excel.py --sources factor,calq-organismes
+```
+
+Le fichier contient l'onglet **Subventions** (373 lignes environ, échéances
+proches surlignées en orange, liens cliquables, filtres) et l'onglet
+**Journal** (détail par source : programmes, rejets, avertissements, erreurs).
+
 ## Configuration Google Sheets
 
 Le Google Sheet reste l'interface de sortie ; la seule chose Google à configurer
