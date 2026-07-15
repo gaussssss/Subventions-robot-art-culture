@@ -6,9 +6,14 @@ arts de la scène).
 
 **v2 « scraping pur »** : aucune IA, aucun courriel, aucun secret d'API — du code
 de scraping (requêtes HTTP + règles CSS) piloté par un catalogue JSON de
-40 sources (municipal, régional, provincial, fédéral, privé). Chaque source y
+73 sources (municipal, régional, provincial, fédéral, privé). Chaque source y
 est stockée avec sa ou ses règles d'extraction ; en ajouter ou en réparer une ne
 demande aucun changement de code.
+
+> 👉 **Vous n'êtes pas informaticien·ne et devez juste faire fonctionner l'outil ?**
+> Suivez le **[mode d'emploi pas à pas (GUIDE.md)](GUIDE.md)**. Le présent README
+> s'adresse aux personnes techniques ; les [spécifications](specifications-veille-subventions.md)
+> décrivent l'architecture.
 
 ```
 Planificateur de tâches Windows → lancer_veille.bat (chaque matin à 7 h, en local)
@@ -16,7 +21,7 @@ Planificateur de tâches Windows → lancer_veille.bat (chaque matin à 7 h, en 
    ▼
 1. Scraping      — requests + BeautifulSoup, règles CSS par page (sources.json)
 2. Validation    — Pydantic : champs obligatoires, dates → ISO, URL sur le domaine source
-3. Déduplication — id_unique = hachage(organisme + nom_programme), statuts Nouveau/Actif/Expiré
+3. Déduplication — id_unique = hachage(organisme + nom_programme + chemin d'URL), statuts Nouveau/Actif/Expiré
 4. Google Sheets — onglets Subventions / Journal / Archives, écriture par lots
 ```
 
@@ -33,6 +38,9 @@ Planificateur de tâches Windows → lancer_veille.bat (chaque matin à 7 h, en 
 | `veille/config.py` | Configuration (variables d'environnement) |
 | `scripts/initialiser_feuille.py` | Création des onglets + mise en forme conditionnelle (à lancer une fois) |
 | `lancer_veille.bat` | **Windows** : installe tout (Python, dépendances), se planifie et exécute la veille |
+| `scripts/exporter_excel.py` | Essai visuel : collecte → fichier Excel local (sans Google Sheets) |
+| `GUIDE.md` | **Mode d'emploi non technique** (installation pas à pas) |
+| `specifications-veille-subventions.md` | Spécifications et architecture du système |
 | `tests/` | Tests unitaires (moteur de règles, dates, déduplication, cycle de vie) |
 
 ## Le catalogue `sources.json`
@@ -104,7 +112,7 @@ python scripts/exporter_excel.py --reprendre             # réutilise la derniè
 python scripts/exporter_excel.py --sources factor,calq-organismes
 ```
 
-Le fichier contient l'onglet **Subventions** (373 lignes environ, échéances
+Le fichier contient l'onglet **Subventions** (900 lignes environ, échéances
 proches surlignées en orange, liens cliquables, filtres) et l'onglet
 **Journal** (détail par source : programmes, rejets, avertissements, erreurs).
 
