@@ -129,6 +129,11 @@ def recuperer(url: str, tentatives: int = TENTATIVES) -> str:
         try:
             reponse = requests.get(url, headers=ENTETES, timeout=DELAI_EXPIRATION_S)
             reponse.raise_for_status()
+            # Sans charset dans l'en-tête, requests suppose ISO-8859-1 (RFC 2616)
+            # alors que les pages modernes sont en UTF-8 (ex. rbc.com) : on se fie
+            # au contenu plutôt qu'à ce défaut.
+            if "charset" not in reponse.headers.get("content-type", "").lower():
+                reponse.encoding = reponse.apparent_encoding
             return reponse.text
         except requests.RequestException as exc:
             derniere = exc
