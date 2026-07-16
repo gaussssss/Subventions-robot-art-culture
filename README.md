@@ -175,6 +175,42 @@ schtasks /Delete /TN VeilleSubventions /F  :: désinstaller la planification
 > `python -m veille.main` (avec les variables de `.env` exportées), à planifier
 > via `launchd`/`cron` au besoin.
 
+## Déploiement cPanel/Linux
+
+Sur un hébergement cPanel, le projet doit tourner comme **tâche cron**, pas comme
+site web. Placez le dossier hors de `public_html` si possible, car `.env` et
+`compte-service.json` sont des secrets.
+
+Préparation une seule fois, en SSH depuis le dossier du projet :
+
+```bash
+chmod +x lancer_veille.sh
+cp .env.example .env
+```
+
+Remplissez ensuite `.env`, puis déposez `compte-service.json` à la racine du
+projet. Initialisez le Google Sheet :
+
+```bash
+./lancer_veille.sh init
+```
+
+Exécution manuelle :
+
+```bash
+./lancer_veille.sh
+```
+
+Dans **cPanel → Cron Jobs**, ajoutez une tâche quotidienne, par exemple à 7 h :
+
+```cron
+0 7 * * * cd /home/VOTRE_COMPTE/veille-subventions && ./lancer_veille.sh >> journaux/veille-$(date +\%F).log 2>&1
+```
+
+Adaptez `/home/VOTRE_COMPTE/veille-subventions` au chemin réel affiché par
+cPanel. Le script crée `.venv/`, installe les dépendances si nécessaire, charge
+`.env`, met à jour le Google Sheet et conserve les journaux dans `journaux/`.
+
 ## Réparer ou ajouter une source
 
 1. Repérer la panne : colonne `alertes` du Journal (« 0 programme extrait ») ou
