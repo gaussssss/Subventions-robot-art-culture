@@ -64,7 +64,7 @@ if [ ! -x "$PYTHON_VENV" ]; then
     "$PYTHON_EXE" -m venv "$VENV"
 fi
 
-if ! "$PYTHON_VENV" -c "import veille, requests, bs4, gspread, pydantic, dateutil" >/dev/null 2>&1; then
+if ! "$PYTHON_VENV" -c "import veille, requests, bs4, gspread, pydantic, dateutil, tzdata" >/dev/null 2>&1; then
     echo "[config] Installation des dépendances..."
     "$PYTHON_VENV" -m pip install --quiet --upgrade pip
     "$PYTHON_VENV" -m pip install --quiet -e "$RACINE"

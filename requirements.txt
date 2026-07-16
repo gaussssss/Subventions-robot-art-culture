@@ -1,0 +1,16 @@
+# Dépendances d'exécution de la veille des subventions.
+#
+# La référence est pyproject.toml (les scripts lancer_veille.* installent via
+# « pip install -e . ») ; ce fichier existe pour les outils qui attendent un
+# requirements.txt — notamment le menu « Setup Python App » de cPanel :
+#     pip install -r requirements.txt
+#
+# Pour les tests et l'export Excel d'essai, ajouter : pytest openpyxl
+
+requests>=2.32
+beautifulsoup4>=4.12
+lxml>=5.0
+gspread>=6.1
+pydantic>=2.7
+python-dateutil>=2.9
+tzdata>=2024.1

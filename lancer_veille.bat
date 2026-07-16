@@ -72,7 +72,7 @@ echo [config] Creation de l'environnement virtuel .venv-windows...
 :venv_ok
 
 REM --- 3. Dependances (repare aussi une installation interrompue) --------------
-"%PYTHON_VENV%" -c "import veille, requests, bs4, gspread, pydantic, dateutil" >nul 2>&1
+"%PYTHON_VENV%" -c "import veille, requests, bs4, gspread, pydantic, dateutil, tzdata" >nul 2>&1
 if errorlevel 1 (
     echo [config] Installation des dependances...
     "%PYTHON_VENV%" -m pip install --quiet --upgrade pip

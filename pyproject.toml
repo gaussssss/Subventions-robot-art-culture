@@ -10,6 +10,9 @@ dependencies = [
     "gspread>=6.1",
     "pydantic>=2.7",
     "python-dateutil>=2.9",
+    # Base IANA des fuseaux horaires pour zoneinfo : requise sur les serveurs
+    # (cPanel/CloudLinux) où /usr/share/zoneinfo n'est pas visible de Python.
+    "tzdata>=2024.1",
 ]
 
 [project.optional-dependencies]
