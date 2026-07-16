@@ -23,7 +23,10 @@ _DERNIERE_COLONNE = chr(ord("A") + len(COLONNES) - 1)  # « N »
 class Feuille:
     def __init__(self, config: Config):
         if not config.sheet_id:
-            raise RuntimeError("Configuration Google Sheets incomplète : définir SHEET_ID.")
+            raise RuntimeError(
+                "Configuration Google Sheets incomplète : définir SHEET_ID (compte de "
+                "service), ou APPSCRIPT_URL + APPSCRIPT_TOKEN (passerelle Apps Script)."
+            )
         infos = config.infos_compte_service()
         if infos:
             client = gspread.service_account_from_dict(infos)

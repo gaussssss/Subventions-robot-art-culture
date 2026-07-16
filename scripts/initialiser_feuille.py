@@ -54,6 +54,16 @@ def _regle(plage: dict, formule: str, fond: dict) -> dict:
 def principal() -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s — %(message)s")
     config = charger_config()
+
+    # Voie Apps Script : la mise en forme est faite côté Google par le script
+    # collé dans la feuille (appscript/Code.gs, action « init »).
+    if config.appscript_url:
+        from veille.feuille_appscript import FeuilleAppScript
+
+        FeuilleAppScript(config).initialiser()
+        logger.info("Feuille initialisée (onglets, en-têtes, mise en forme) via Apps Script.")
+        return 0
+
     feuille = Feuille(config)
     feuille.assurer_structure()
 

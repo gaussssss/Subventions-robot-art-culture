@@ -247,3 +247,78 @@ def test_extraction_puis_validation_pydantic():
     prog = ProgrammeExtrait.model_validate(element, context={"domaines": ["exemple.org"]})
     assert prog.date_limite == "2026-09-15"  # normalisation de la date française
     assert prog.admissibilite_obnl == "À vérifier"
+
+
+def _config_appscript():
+    from veille.config import Config
+
+    return Config(
+        jours_retention_expires=90, delai_entre_requetes_s=1.0, sheet_id=None,
+        compte_service_brut=None, compte_service_fichier=None,
+        appscript_url="https://script.google.com/macros/s/XXX/exec",
+        appscript_jeton="secret-test",
+    )
+
+
+def test_feuille_appscript_payloads_et_lecture(monkeypatch):
+    """Le client envoie {jeton, action, ...} et relit les lignes du Sheet."""
+    from veille import feuille_appscript
+    from veille.models import LigneSubvention
+
+    appels = []
+
+    class _Reponse:
+        status_code = 200
+
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            action = appels[-1]["json"]["action"]
+            if action == "lire":
+                ligne = LigneSubvention(nom_programme="Aide", organisme="Org").en_liste()
+                return {"ok": True, "lignes": [ligne, [""] * 14]}  # la ligne vide est ignorée
+            return {"ok": True}
+
+    monkeypatch.setattr(
+        feuille_appscript.requests, "post",
+        lambda url, **kw: appels.append({"url": url, **kw}) or _Reponse(),
+    )
+
+    feuille = feuille_appscript.FeuilleAppScript(_config_appscript())
+    feuille.assurer_structure()
+    lignes = feuille.lire_subventions()
+    feuille.ecrire_subventions(lignes)
+    feuille.ajouter_journal(["2026-07-15", "71"])
+
+    actions = [a["json"]["action"] for a in appels]
+    assert actions == ["structure", "lire", "ecrire", "journal"]
+    assert all(a["json"]["jeton"] == "secret-test" for a in appels)
+    assert len(lignes) == 1 and lignes[0].nom_programme == "Aide"
+    assert appels[2]["json"]["lignes"] == [lignes[0].en_liste()]  # aller-retour intact
+
+
+def test_feuille_appscript_erreur_remontee(monkeypatch):
+    """Une réponse {ok: false} de la passerelle devient une exception claire."""
+    import pytest
+
+    from veille import feuille_appscript
+
+    class _Reponse:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"ok": False, "erreur": "jeton invalide"}
+
+    monkeypatch.setattr(feuille_appscript.requests, "post", lambda url, **kw: _Reponse())
+    feuille = feuille_appscript.FeuilleAppScript(_config_appscript())
+    with pytest.raises(feuille_appscript.ErreurAppScript, match="jeton invalide"):
+        feuille.assurer_structure()
+
+
+def test_ouvrir_feuille_choisit_la_passerelle():
+    from veille.config import ouvrir_feuille
+    from veille.feuille_appscript import FeuilleAppScript
+
+    assert isinstance(ouvrir_feuille(_config_appscript()), FeuilleAppScript)

@@ -31,6 +31,9 @@ class Config:
     sheet_id: str | None
     compte_service_brut: str | None
     compte_service_fichier: str | None
+    # Passerelle Apps Script (alternative au compte de service — voir appscript/Code.gs)
+    appscript_url: str | None
+    appscript_jeton: str | None
 
     @property
     def url_feuille(self) -> str | None:
@@ -57,4 +60,18 @@ def charger_config() -> Config:
         sheet_id=_env("SHEET_ID"),
         compte_service_brut=_env("GOOGLE_SERVICE_ACCOUNT_JSON"),
         compte_service_fichier=_env("GOOGLE_SERVICE_ACCOUNT_FILE"),
+        appscript_url=_env("APPSCRIPT_URL"),
+        appscript_jeton=_env("APPSCRIPT_TOKEN"),
     )
+
+
+def ouvrir_feuille(config: Config):
+    """Choisit le canal d'écriture du Sheet : passerelle Apps Script si configurée,
+    sinon compte de service Google (gspread)."""
+    if config.appscript_url:
+        from .feuille_appscript import FeuilleAppScript
+
+        return FeuilleAppScript(config)
+    from .feuille import Feuille
+
+    return Feuille(config)

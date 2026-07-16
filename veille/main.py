@@ -19,9 +19,15 @@ import time
 from datetime import datetime
 
 from . import extracteur
-from .config import DOSSIER_SORTIE, FICHIER_SOURCES, FUSEAU_HORAIRE, Config, charger_config
+from .config import (
+    DOSSIER_SORTIE,
+    FICHIER_SOURCES,
+    FUSEAU_HORAIRE,
+    Config,
+    charger_config,
+    ouvrir_feuille,
+)
 from .dedoublonnage import fusionner, separer_archives, trier
-from .feuille import Feuille
 
 logger = logging.getLogger("veille")
 
@@ -106,7 +112,7 @@ def _executer(args, config: Config) -> int:
 
     # ── 2-4. Déduplication, cycle de vie, écriture du Sheet ──────────────────
     try:
-        feuille = Feuille(config)
+        feuille = ouvrir_feuille(config)
         feuille.assurer_structure()
         existantes = feuille.lire_subventions()
         fusion = fusionner(existantes, programmes, aujourdhui)
@@ -122,8 +128,8 @@ def _executer(args, config: Config) -> int:
         )
     except Exception:
         logger.exception("Échec de la mise à jour Google Sheets")
-        # Sur un environnement éphémère (job Cloud Run), le fichier disparaît avec le
-        # conteneur : on déverse la collecte dans les journaux pour ne rien perdre.
+        # On déverse aussi la collecte dans les journaux : même si le fichier de
+        # sortie se perdait, rien ne serait perdu.
         try:
             logger.error(
                 "Collecte du jour (à récupérer dans les journaux) :\n%s",

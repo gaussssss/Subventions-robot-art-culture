@@ -15,7 +15,8 @@ REM    - lancer_veille.bat tache     : mode silencieux (utilise par la tache pla
 REM                                    sortie redirigee vers journaux\veille-AAAA-MM-JJ.log)
 REM
 REM  Reglages : HEURE et NOM_TACHE ci-dessous.
-REM  Prerequis : fichier .env rempli (SHEET_ID, GOOGLE_SERVICE_ACCOUNT_FILE).
+REM  Prerequis : fichier .env rempli - APPSCRIPT_URL + APPSCRIPT_TOKEN (recommande)
+REM              ou SHEET_ID + GOOGLE_SERVICE_ACCOUNT_FILE (compte de service).
 REM  Desinstaller la planification : schtasks /Delete /TN VeilleSubventions /F
 REM ============================================================================
 setlocal EnableExtensions
@@ -86,8 +87,9 @@ if not exist "%RACINE%.env" (
     exit /b 1
 )
 for /f "usebackq eol=# tokens=1,* delims==" %%a in ("%RACINE%.env") do set "%%a=%%b"
-if not defined SHEET_ID (
-    echo [erreur] SHEET_ID absent du fichier .env
+if not defined SHEET_ID if not defined APPSCRIPT_URL (
+    echo [erreur] Ni APPSCRIPT_URL ni SHEET_ID dans le fichier .env
+    echo          Option recommandee : APPSCRIPT_URL + APPSCRIPT_TOKEN - voir GUIDE.md
     exit /b 1
 )
 

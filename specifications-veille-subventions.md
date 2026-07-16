@@ -198,32 +198,55 @@ passent par l'onglet Journal et les journaux locaux).
 
 ### 4.5 Composant 4 — Écriture Google Sheets
 
-- **Authentification** : compte de service Google Cloud (clé JSON), Sheet partagé
-  en édition avec le courriel du compte de service.
-- **Librairie** : `gspread`. Écriture par lots ; aucune suppression destructive.
-- Une sauvegarde JSON locale (`sortie/resultats-AAAA-MM-JJ.json`) précède toujours
-  l'écriture — filet de sécurité si le Sheet est indisponible.
+Deux canaux interchangeables (choisis par la configuration, même interface) :
+
+- **Passerelle Apps Script (par défaut recommandé)** : un script
+  (`appscript/Code.gs`) est collé dans la feuille et déployé en application
+  Web ; le pipeline (`veille/feuille_appscript.py`) lui envoie les données par
+  HTTP, authentifiées par un jeton partagé (`APPSCRIPT_URL` +
+  `APPSCRIPT_TOKEN`). Aucun compte de service ni clé JSON ; le script est
+  verrouillé (`LockService`) contre les exécutions simultanées et ne touche
+  qu'à la feuille qui l'héberge.
+- **Compte de service Google Cloud** (`veille/feuille.py`, librairie `gspread`) :
+  clé JSON + Sheet partagé en édition avec le courriel du compte de service
+  (`SHEET_ID` + `GOOGLE_SERVICE_ACCOUNT_FILE`).
+
+Dans les deux cas : écriture par lots, aucune suppression destructive, et une
+sauvegarde JSON locale (`sortie/resultats-AAAA-MM-JJ.json`) précède toujours
+l'écriture — filet de sécurité si le Sheet est indisponible.
 
 ---
 
-## 5. Automatisation — exécution locale sous Windows
+## 5. Automatisation — deux modes d'exécution
+
+### 5.1 Serveur Linux / cPanel (mode retenu)
+
+- **Orchestrateur** : une **tâche cron** quotidienne (7 h) appelant
+  `lancer_veille.sh tache` — soit inscrite automatiquement
+  (`./lancer_veille.sh planifier`), soit ajoutée dans le menu « Tâches Cron »
+  de cPanel.
+- **Amorçage autonome** : `lancer_veille.sh` détecte un Python 3.11+ (y compris
+  les chemins CloudLinux `/opt/alt/python3xx`), crée `.venv`, installe les
+  dépendances, crée `.env` à partir du modèle au premier passage.
+- **Journaux** : mode `tache` → `journaux/veille-AAAA-MM-JJ.log` (60 jours de
+  rétention).
+- Le dossier du projet doit rester **hors de `public_html`** (le `.env` est un
+  secret). Avec la passerelle Apps Script, aucun fichier de clé n'est déposé
+  sur le serveur.
+
+### 5.2 Poste Windows (alternative locale)
 
 - **Orchestrateur** : le **Planificateur de tâches Windows**, alimenté par
   `lancer_veille.bat`, qui s'auto-enregistre (tâche quotidienne à 7 h, heure
-  réglable). Aucun service infonuagique, aucun GitHub Actions.
-- **Amorçage autonome** : au premier lancement, `lancer_veille.bat` installe
-  Python si absent (via winget), crée l'environnement virtuel `.venv-windows` et
-  les dépendances, puis crée `.env` à partir du modèle.
-- **Configuration** (fichier `.env`) : `SHEET_ID` et `GOOGLE_SERVICE_ACCOUNT_FILE`
-  (le fichier de clé, par défaut `compte-service.json`). Réglages facultatifs :
-  `JOURS_RETENTION_EXPIRES`, `DELAI_ENTRE_REQUETES_S`.
-- **Journaux** : chaque exécution planifiée écrit dans `journaux\veille-AAAA-MM-JJ.log`
-  (60 jours de rétention).
-- **Rattrapage** : si le poste était éteint à 7 h, un double-clic sur le script
-  refait la collecte du jour ; la déduplication rend les ré-exécutions sans danger.
+  réglable) et installe Python (winget) + `.venv-windows` au besoin.
+- **Rattrapage** : si le poste était éteint à 7 h, un double-clic refait la
+  collecte du jour ; la déduplication rend les ré-exécutions sans danger.
 
-Un équivalent manuel existe sous macOS/Linux (`python -m veille.main`, à planifier
-via `launchd`/`cron`).
+### 5.3 Configuration commune (fichier `.env`)
+
+`APPSCRIPT_URL` + `APPSCRIPT_TOKEN` (passerelle Apps Script, recommandé) **ou**
+`SHEET_ID` + `GOOGLE_SERVICE_ACCOUNT_FILE` (compte de service). Réglages
+facultatifs : `JOURS_RETENTION_EXPIRES`, `DELAI_ENTRE_REQUETES_S`.
 
 ---
 
@@ -262,7 +285,9 @@ incertaines restent « À vérifier ».
 | Moteur de scraping + règles CSS externalisées | `veille/extracteur.py`, `sources.json` | ✅ livré |
 | Validation Pydantic + déduplication + cycle de vie | `veille/models.py`, `veille/dedoublonnage.py` | ✅ livré |
 | Écriture Google Sheets + initialisation | `veille/feuille.py`, `scripts/initialiser_feuille.py` | ✅ livré |
+| Passerelle Apps Script (sans compte de service) | `appscript/Code.gs`, `veille/feuille_appscript.py` | ✅ livré |
 | Catalogue 73 sources (couverture maximale) | `sources.json` | ✅ livré |
+| Exécution serveur Linux / cPanel (cron) | `lancer_veille.sh` | ✅ livré |
 | Exécution locale Windows auto-installante | `lancer_veille.bat` | ✅ livré (non testé sur Windows) |
 | Essai visuel Excel | `scripts/exporter_excel.py` | ✅ livré |
 | Tests unitaires | `tests/` | ✅ 19 tests |
@@ -270,8 +295,9 @@ incertaines restent « À vérifier ».
 **Vérifié le 15 juillet 2026** (collecte réelle) : 996 programmes bruts →
 909 lignes uniques, 0 source en erreur.
 
-**Restant côté organisme** (voir [GUIDE.md](GUIDE.md)) : créer le Google Sheet et
-la clé de compte de service, remplir `.env`, lancer le script sur le poste Windows.
+**Restant côté organisme** (voir [GUIDE.md](GUIDE.md)) : créer le Google Sheet,
+y coller et déployer la passerelle Apps Script, remplir `.env`, puis lancer
+`lancer_veille.sh` sur le serveur (ou `lancer_veille.bat` sur un poste Windows).
 
 ---
 

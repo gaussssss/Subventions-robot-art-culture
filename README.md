@@ -33,11 +33,14 @@ Planificateur de tâches Windows → lancer_veille.bat (chaque matin à 7 h, en 
 | `veille/extracteur.py` | Moteur de scraping (téléchargement, moteur de règles CSS) — schéma des règles documenté en tête de fichier |
 | `veille/models.py` | Validation Pydantic, normalisation des dates, `id_unique` |
 | `veille/dedoublonnage.py` | Fusion avec l'état du Sheet, cycle de vie des statuts, archives, tri |
-| `veille/feuille.py` | Lecture/écriture Google Sheets (gspread) |
+| `veille/feuille.py` | Lecture/écriture Google Sheets (gspread, compte de service) |
+| `veille/feuille_appscript.py` | Lecture/écriture via la passerelle Apps Script (sans compte de service) |
+| `appscript/Code.gs` | Le script à coller dans le Sheet (Extensions → Apps Script) |
 | `veille/main.py` | Orchestrateur et point d'entrée CLI |
 | `veille/config.py` | Configuration (variables d'environnement) |
 | `scripts/initialiser_feuille.py` | Création des onglets + mise en forme conditionnelle (à lancer une fois) |
 | `lancer_veille.bat` | **Windows** : installe tout (Python, dépendances), se planifie et exécute la veille |
+| `lancer_veille.sh` | **Linux / cPanel** : équivalent du `.bat` (venv, cron, journaux) |
 | `scripts/exporter_excel.py` | Essai visuel : collecte → fichier Excel local (sans Google Sheets) |
 | `GUIDE.md` | **Mode d'emploi non technique** (installation pas à pas) |
 | `specifications-veille-subventions.md` | Spécifications et architecture du système |
@@ -118,8 +121,29 @@ proches surlignées en orange, liens cliquables, filtres) et l'onglet
 
 ## Configuration Google Sheets
 
-Le Google Sheet reste l'interface de sortie ; la seule chose Google à configurer
-est une **clé de compte de service** pour y écrire (gratuit, aucun hébergement) :
+Le Google Sheet reste l'interface de sortie. Deux façons de l'atteindre — l'une
+ou l'autre, pas les deux :
+
+### Option A (recommandée) — passerelle Apps Script, sans compte de service
+
+Un petit script ([appscript/Code.gs](appscript/Code.gs)) se colle **dans** la
+feuille et se déploie en « application Web » : le pipeline lui envoie les
+données par HTTP avec un jeton partagé, et c'est lui qui écrit. Aucune console
+Google Cloud, aucune clé JSON.
+
+1. Ouvrir la feuille → **Extensions → Apps Script**, coller le contenu de
+   `appscript/Code.gs`, remplacer le `JETON` par une phrase secrète.
+2. **Déployer → Nouveau déploiement → Application Web** ; « Exécuter en tant
+   que : Moi », « Qui peut accéder : Tout le monde ». Autoriser, copier l'URL
+   `…/exec`.
+3. Renseigner `.env` : `APPSCRIPT_URL=…/exec` et `APPSCRIPT_TOKEN=<la phrase>`.
+
+Détail pas à pas avec captures d'écran mentales : [GUIDE.md](GUIDE.md), étape 3.
+Après toute modification du script, **redéployer** (Gérer les déploiements →
+Nouvelle version) — l'URL ne change pas. Le script utilise `LockService` :
+deux exécutions simultanées ne peuvent pas se marcher dessus.
+
+### Option B — compte de service Google Cloud (clé JSON)
 
 1. [console.cloud.google.com](https://console.cloud.google.com) : créer un projet
    (gratuit, sans facturation), puis activer l'**API Google Sheets**
@@ -133,6 +157,9 @@ est une **clé de compte de service** pour y écrire (gratuit, aucun hébergemen
    compte de service (`...@...iam.gserviceaccount.com`).
 4. Renseigner le fichier `.env` : `SHEET_ID=...` et
    `GOOGLE_SERVICE_ACCOUNT_FILE=compte-service.json`.
+
+Le pipeline choisit tout seul : si `APPSCRIPT_URL` est défini, il passe par la
+passerelle ; sinon par le compte de service.
 
 ## Exécution quotidienne — en local sous Windows
 
@@ -171,45 +198,40 @@ schtasks /Delete /TN VeilleSubventions /F  :: désinstaller la planification
 `journaux\` et dans l'onglet Journal du Sheet (sources en erreur, alertes
 « 0 programme extrait », sources dont les règles restent à écrire).
 
-> Sur macOS/Linux, l'équivalent manuel reste disponible :
-> `python -m veille.main` (avec les variables de `.env` exportées), à planifier
-> via `launchd`/`cron` au besoin.
+## Déploiement serveur — Linux / cPanel
 
-## Déploiement cPanel/Linux
+Sur un hébergement cPanel, le projet tourne comme **tâche cron**, pas comme site
+web. Placez le dossier **hors de `public_html`** : `.env` (et l'éventuel
+`compte-service.json`) sont des secrets. [lancer_veille.sh](lancer_veille.sh)
+est l'équivalent Linux du `.bat` : il trouve un Python 3.11+ (y compris les
+chemins CloudLinux `/opt/alt/python3xx`), crée `.venv`, installe les
+dépendances, charge `.env` et journalise dans `journaux/`.
 
-Sur un hébergement cPanel, le projet doit tourner comme **tâche cron**, pas comme
-site web. Placez le dossier hors de `public_html` si possible, car `.env` et
-`compte-service.json` sont des secrets.
-
-Préparation une seule fois, en SSH depuis le dossier du projet :
+Mise en route, en SSH depuis le dossier du projet :
 
 ```bash
 chmod +x lancer_veille.sh
-cp .env.example .env
+./lancer_veille.sh              # 1er passage : installe tout, crée .env → le remplir
+./lancer_veille.sh init         # une fois : onglets + mise en forme du Sheet
+./lancer_veille.sh              # collecte immédiate (vérification)
+./lancer_veille.sh planifier    # inscrit la tâche cron quotidienne (7 h)
 ```
 
-Remplissez ensuite `.env`, puis déposez `compte-service.json` à la racine du
-projet. Initialisez le Google Sheet :
+Sans accès SSH : dans **cPanel → Tâches Cron**, ajoutez une tâche quotidienne
+(minute `0`, heure `7`) avec la commande :
 
-```bash
-./lancer_veille.sh init
+```
+/bin/bash /home/VOTRE_COMPTE/veille-subventions/lancer_veille.sh tache
 ```
 
-Exécution manuelle :
+Le mode `tache` envoie toute la sortie dans `journaux/veille-AAAA-MM-JJ.log`
+(60 jours de rétention). Adaptez le chemin à celui affiché par le gestionnaire
+de fichiers cPanel. L'heure du cron suit le fuseau du serveur — décalez-la au
+besoin. Avec l'option A (Apps Script), aucun fichier de clé n'est à déposer sur
+le serveur : `.env` suffit.
 
-```bash
-./lancer_veille.sh
-```
-
-Dans **cPanel → Cron Jobs**, ajoutez une tâche quotidienne, par exemple à 7 h :
-
-```cron
-0 7 * * * cd /home/VOTRE_COMPTE/veille-subventions && ./lancer_veille.sh >> journaux/veille-$(date +\%F).log 2>&1
-```
-
-Adaptez `/home/VOTRE_COMPTE/veille-subventions` au chemin réel affiché par
-cPanel. Le script crée `.venv/`, installe les dépendances si nécessaire, charge
-`.env`, met à jour le Google Sheet et conserve les journaux dans `journaux/`.
+> Sur macOS, l'équivalent manuel reste disponible : `./lancer_veille.sh`
+> fonctionne aussi (ou `python -m veille.main`), à planifier via `launchd`.
 
 ## Réparer ou ajouter une source
 
