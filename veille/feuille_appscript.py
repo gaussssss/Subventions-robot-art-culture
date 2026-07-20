@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import logging
+from urllib.parse import urlparse
 
 import requests
 
@@ -44,11 +45,21 @@ def appeler_passerelle(url: str, jeton: str, action: str, **donnees) -> dict:
     try:
         objet = reponse.json()
     except (json.JSONDecodeError, ValueError) as exc:
-        # Réponse HTML = presque toujours un déploiement mal configuré.
+        # Réponse HTML : l'hôte qui a fini par répondre dit presque tout.
+        hote = urlparse(reponse.url).netloc
+        if "accounts.google" in hote:
+            detail = ("Google exige une connexion : le déploiement n'est pas en accès "
+                      "« Tout le monde ». Redéployer avec le bon réglage.")
+        elif "docs.google" in hote or "drive.google" in hote:
+            detail = ("le déploiement à cette URL n'existe plus (archivé ou supprimé "
+                      "lors d'un redéploiement ?). Ouvrir « Gérer les déploiements » "
+                      "et recopier l'URL /exec du déploiement actif dans le .env.")
+        else:
+            detail = ("vérifier que le déploiement est une « application Web » avec "
+                      "accès « Tout le monde », et que l'URL se termine par /exec.")
         raise ErreurAppScript(
-            "La passerelle Apps Script n'a pas répondu en JSON. Vérifier que le "
-            "déploiement est une « application Web » avec accès « Tout le monde », "
-            "et que l'URL est bien l'adresse qui se termine par /exec."
+            f"La passerelle Apps Script n'a pas répondu en JSON "
+            f"(HTTP {reponse.status_code}, réponse de {hote}) : {detail}"
         ) from exc
     if not objet.get("ok"):
         raise ErreurAppScript(f"Passerelle Apps Script : {objet.get('erreur', 'erreur inconnue')}")
