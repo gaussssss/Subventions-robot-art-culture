@@ -488,3 +488,17 @@ def test_classeur_cle_retrouvee_meme_deplacee_en_colonne():
     plan = planifier(etat, onglets, [(idu, p, cat)])
     # Pas de ré-ajout, pas de suppression : la ligne est bien retrouvée.
     assert plan.nb_ajouts == 0 and plan.nb_supprimees == 0
+
+
+def test_classeur_onglet_reconnu_malgre_ponctuation_ajoutee():
+    """Un onglet renommé « Régional - Mauricie ? » (point d'interrogation ajouté
+    à la main) doit rester associé à sa catégorie."""
+    from veille.classeur import resoudre_onglets
+
+    onglets = [
+        {"gid": 5, "nom": "Régional - Mauricie ?", "valeurs": []},
+        {"gid": 6, "nom": "Innov - techno", "valeurs": []},
+    ]
+    resolution = resoudre_onglets({"onglets": {}}, onglets)
+    assert resolution["Régional - Mauricie"] == 5
+    assert resolution["Innovation - techno"] == 6

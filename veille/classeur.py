@@ -144,7 +144,11 @@ def sauvegarder_etat(etat: dict) -> None:
 # ─── Résolution des onglets et localisation des clés ─────────────────────────
 
 def _normaliser_nom(nom: str) -> str:
-    return re.sub(r"\s+", " ", nom).strip().casefold()
+    """Normalise un nom d'onglet pour la correspondance : ponctuation neutralisée
+    (tirets, virgules, « ? » ajoutés à la main…), espaces réduits, casse ignorée.
+    Ainsi « Régional - Mauricie ? » et « Régional - Mauricie » se correspondent."""
+    sans_ponctuation = re.sub(r"[^\w\s]", " ", nom, flags=re.UNICODE)
+    return re.sub(r"\s+", " ", sans_ponctuation).strip().casefold()
 
 
 def resoudre_onglets(etat: dict, onglets: list[dict]) -> dict[str, int]:
@@ -370,6 +374,62 @@ def synchroniser(config: Config, resultats: list[ResultatSource]) -> str:
     return resume
 
 
+# ─── Diagnostic de connexion ─────────────────────────────────────────────────
+
+def _tester() -> int:
+    """Vérifie la liaison avec le classeur sans rien modifier : affiche l'URL
+    telle qu'elle est lue (révèle une coupure/espace parasite), puis interroge
+    la passerelle depuis ce poste."""
+    from .config import charger_config
+
+    config = charger_config()
+    url = config.classeur_appscript_url
+    jeton = config.classeur_appscript_jeton
+
+    print("─ Réglages lus dans le .env ─")
+    if not url:
+        print("  CLASSEUR_APPSCRIPT_URL : ABSENTE — le classeur ne sera pas alimenté.")
+        return 1
+    print(f"  CLASSEUR_APPSCRIPT_URL : [{url}]")
+    print(f"     longueur : {len(url)} caractères")
+    soupcons = []
+    if not url.startswith("https://"):
+        soupcons.append("ne commence pas par https://")
+    if not url.endswith("/exec"):
+        soupcons.append("ne se termine pas par /exec")
+    if any(c.isspace() for c in url):
+        soupcons.append("contient un espace ou un retour à la ligne (URL coupée ?)")
+    if soupcons:
+        print("  ⚠ PROBLÈME(S) d'URL : " + " ; ".join(soupcons))
+    print(f"  CLASSEUR_APPSCRIPT_TOKEN : {'défini' if jeton else 'ABSENT'}"
+          f"{' (' + str(len(jeton)) + ' caractères)' if jeton else ''}")
+    if soupcons:
+        print("\n→ Corrigez l'URL dans le .env (une seule ligne, sans espace) puis relancez ce test.")
+        return 1
+
+    print("\n─ Interrogation de la passerelle ─")
+    try:
+        rep = appeler_passerelle(url, jeton, "ping")
+        print(f"  ping           : OK ({rep.get('reponse')})")
+    except Exception as exc:
+        print(f"  ping           : ÉCHEC — {exc}")
+        return 1
+    try:
+        onglets = appeler_passerelle(url, jeton, "classeur_lire").get("onglets", [])
+        print(f"  classeur_lire  : OK — {len(onglets)} onglet(s) lus")
+        resolution = resoudre_onglets({"onglets": {}}, onglets)
+        introuvables = [c for c in ONGLET_PAR_CATEGORIE if c not in resolution]
+        if introuvables:
+            print(f"  ⚠ catégories sans onglet correspondant (iront dans « À classer ») : "
+                  f"{', '.join(introuvables)}")
+    except Exception as exc:
+        print(f"  classeur_lire  : ÉCHEC — {exc}")
+        return 1
+
+    print("\n✓ Liaison au classeur opérationnelle. Vous pouvez lancer la veille.")
+    return 0
+
+
 # ─── Petit utilitaire en ligne de commande ───────────────────────────────────
 
 def principal(argv: list[str] | None = None) -> int:
@@ -378,10 +438,16 @@ def principal(argv: list[str] | None = None) -> int:
     )
     analyseur.add_argument("--resume", action="store_true",
                            help="afficher un résumé de l'état local")
+    analyseur.add_argument("--tester", action="store_true",
+                           help="diagnostiquer la connexion au classeur (lit le .env, "
+                                "interroge la passerelle, ne modifie rien)")
     analyseur.add_argument("--reactiver", metavar="IDS",
                            help="ids (séparés par des virgules) de lignes supprimées à "
                                 "ré-autoriser : elles seront ré-ajoutées à la prochaine collecte")
     args = analyseur.parse_args(argv)
+
+    if args.tester:
+        return _tester()
 
     etat = charger_etat()
     lignes = etat.get("lignes", {})
