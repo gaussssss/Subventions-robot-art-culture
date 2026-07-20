@@ -147,7 +147,7 @@ informations, elle fera cette étape, et vous passez directement à l'étape 6.)
 
 ## Étape 5 — Premier démarrage
 
-1. **Préparez le tableau** (une seule fois) : dans votre dossier, maintenez la
+1. **Une seule commande fait tout** : dans votre dossier, maintenez la
    touche **Maj**, faites un **clic droit** dans une zone vide → **« Ouvrir la
    fenêtre PowerShell ici »**, puis tapez :
 
@@ -155,12 +155,11 @@ informations, elle fera cette étape, et vous passez directement à l'étape 6.)
    lancer_veille.bat init
    ```
 
-   Retournez voir votre tableau : les onglets **Subventions**, **Journal** et
-   **Archives** sont apparus, avec les couleurs.
-2. **Lancez la première collecte** : **double-cliquez sur `lancer_veille.bat`**.
-   Le programme visite les sites (quelques minutes) et remplit votre tableau. À
-   la fin, il affiche `Veille terminée`.
-3. **Ouvrez votre tableau Google Sheets** : il est rempli de subventions ! 🎉
+   Le programme prépare le tableau (les onglets **Subventions**, **Journal** et
+   **Archives** apparaissent, avec les couleurs), puis **enchaîne aussitôt la
+   première collecte** : il visite les sites (quelques minutes) et remplit
+   votre tableau. À la fin, il affiche `Veille terminée`.
+2. **Ouvrez votre tableau Google Sheets** : il est rempli de subventions ! 🎉
 
 Au premier démarrage, le programme s'est aussi **programmé lui-même** pour se
 relancer **chaque matin à 7 h** (si l'ordinateur est allumé).
@@ -185,6 +184,40 @@ relancer **chaque matin à 7 h** (si l'ordinateur est allumé).
 | **Vert** | Subvention **nouvelle** (apparue à la dernière collecte) |
 | **Orange** (colonne date limite) | Échéance dans **14 jours ou moins** — priorité |
 | **Gris** | Programme **expiré** (date limite passée) |
+
+---
+
+## Étape 7 (facultative) — Brancher votre classeur personnel
+
+Si vous tenez déjà **votre propre classeur** de subventions (celui avec vos
+onglets « Grands programmes », « Tourisme », « Patrimoine »…), le robot peut y
+**verser aussi ses trouvailles chaque matin**, chacune dans l'onglet de sa
+catégorie — sans jamais abîmer votre travail :
+
+- il **ajoute** ses lignes à la suite de vos onglets et ne touche **jamais** à
+  vos lignes, à vos couleurs ni à l'onglet « Priorités » ;
+- si **vous corrigez** une de ses lignes (montant, date, n'importe quoi), votre
+  version **gagne** : il ne repassera pas dessus ;
+- si vous **déplacez** une de ses lignes dans un autre onglet, il la suit et
+  retient votre choix ;
+- si vous **supprimez** une de ses lignes, elle ne reviendra pas ;
+- vous pouvez trier, recolorer, renommer les onglets : rien ne casse.
+
+**Mise en place** : refaites simplement l'étape 3 (le « facteur »), mais dans
+**votre classeur** cette fois — même fichier `appscript/Code.gs`, votre phrase
+secrète, déploiement en application Web — puis ajoutez dans le fichier `.env` :
+
+```
+CLASSEUR_APPSCRIPT_URL=l-adresse-/exec-de-CE-classeur
+CLASSEUR_APPSCRIPT_TOKEN=la-phrase-secrète-de-CE-classeur
+```
+
+> **Une seule précaution** : tout à droite de ses lignes (colonne AI), le robot
+> note un petit code du genre `rbt:a1b2c3…` — c'est sa **mémoire**. Laissez
+> cette petite étiquette tranquille ; tout le reste est à vous.
+
+*(Ligne supprimée par erreur ? La personne technique peut la faire revenir avec
+`python -m veille.classeur --reactiver <code>`.)*
 
 ---
 

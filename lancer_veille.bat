@@ -11,6 +11,7 @@ REM
 REM  Utilisation :
 REM    - double-clic                 : installation complete + execution immediate
 REM    - lancer_veille.bat init      : initialise le Google Sheet (une seule fois)
+REM                                    puis enchaine la premiere collecte
 REM    - lancer_veille.bat tache     : mode silencieux (utilise par la tache planifiee,
 REM                                    sortie redirigee vers journaux\veille-AAAA-MM-JJ.log)
 REM
@@ -97,8 +98,8 @@ REM --- 5. Execution -----------------------------------------------------------
 cd /d "%RACINE%"
 if /i "%~1"=="init" (
     echo [init] Initialisation du Google Sheet ^(onglets + mise en forme^)...
-    "%PYTHON_VENV%" scripts\initialiser_feuille.py
-    exit /b %errorlevel%
+    "%PYTHON_VENV%" scripts\initialiser_feuille.py || exit /b 1
+    echo [init] Structure prete - la premiere collecte demarre tout de suite...
 )
 
 "%PYTHON_VENV%" -m veille.main

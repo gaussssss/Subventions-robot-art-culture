@@ -64,6 +64,13 @@ function doPost(e) {
       case "ecrire":     return _reponse(_ecrire(corps.lignes || []));
       case "archiver":   return _reponse(_archiver(corps.lignes || []));
       case "journal":    return _reponse(_journal(corps.ligne || []));
+      // Actions « classeur » : utilisées quand ce script est collé dans le
+      // classeur manuel (2e feuille, organisée par onglets de catégories).
+      // Elles n'écrivent QUE des valeurs — jamais de couleur ni de mise en
+      // forme : les codes couleurs manuels restent intacts.
+      case "classeur_lire":    return _reponse(_classeurLire());
+      case "classeur_ajouter": return _reponse(_classeurAjouter(corps.gid, corps.lignes || []));
+      case "classeur_maj":     return _reponse(_classeurMaj(corps.gid, corps.cellules || []));
       default:           return _reponse({ ok: false, erreur: "action inconnue : " + corps.action });
     }
   } catch (err) {
@@ -197,4 +204,58 @@ function _journal(ligne) {
   const onglet = _classeur().getSheetByName(ONGLET_JOURNAL);
   onglet.appendRow(ligne.map(String));
   return { ok: true };
+}
+
+// ─── Actions « classeur manuel » ─────────────────────────────────────────────
+// Le robot suit les onglets par leur identifiant interne (gid), stable même si
+// l'onglet est renommé ou déplacé.
+
+function _ongletParGid(gid) {
+  const onglets = _classeur().getSheets();
+  for (let i = 0; i < onglets.length; i++) {
+    if (onglets[i].getSheetId() === gid) return onglets[i];
+  }
+  return null;
+}
+
+/** Renvoie tous les onglets (gid, nom) avec leurs valeurs affichées. */
+function _classeurLire() {
+  const onglets = _classeur().getSheets().map(function (o) {
+    const nbLignes = o.getLastRow(), nbColonnes = o.getLastColumn();
+    return {
+      gid: o.getSheetId(),
+      nom: o.getName(),
+      valeurs: (nbLignes && nbColonnes)
+        ? o.getRange(1, 1, nbLignes, nbColonnes).getDisplayValues()
+        : [],
+    };
+  });
+  return { ok: true, onglets: onglets };
+}
+
+/** Ajoute des lignes à la suite d'un onglet (valeurs texte uniquement). */
+function _classeurAjouter(gid, lignes) {
+  const onglet = _ongletParGid(gid);
+  if (!onglet) return { ok: false, erreur: "onglet introuvable (gid " + gid + ")" };
+  if (!lignes.length) return { ok: true, reponse: "rien à ajouter" };
+  const largeur = Math.max.apply(null, lignes.map(function (l) { return l.length; }));
+  const normalisees = lignes.map(function (l) {
+    const rangee = l.slice();
+    while (rangee.length < largeur) rangee.push("");
+    return rangee.map(String);
+  });
+  onglet.getRange(onglet.getLastRow() + 1, 1, normalisees.length, largeur)
+    .setNumberFormat("@") // texte brut : ne pas laisser Sheets réinterpréter les dates
+    .setValues(normalisees);
+  return { ok: true, reponse: normalisees.length + " ligne(s) ajoutée(s)" };
+}
+
+/** Met à jour des cellules précises {ligne, colonne, valeur} (valeurs uniquement). */
+function _classeurMaj(gid, cellules) {
+  const onglet = _ongletParGid(gid);
+  if (!onglet) return { ok: false, erreur: "onglet introuvable (gid " + gid + ")" };
+  cellules.forEach(function (c) {
+    onglet.getRange(c.ligne, c.colonne).setNumberFormat("@").setValue(String(c.valeur));
+  });
+  return { ok: true, reponse: cellules.length + " cellule(s) mise(s) à jour" };
 }

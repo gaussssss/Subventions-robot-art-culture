@@ -35,6 +35,8 @@ Planificateur de tâches Windows → lancer_veille.bat (chaque matin à 7 h, en 
 | `veille/dedoublonnage.py` | Fusion avec l'état du Sheet, cycle de vie des statuts, archives, tri |
 | `veille/feuille.py` | Lecture/écriture Google Sheets (gspread, compte de service) |
 | `veille/feuille_appscript.py` | Lecture/écriture via la passerelle Apps Script (sans compte de service) |
+| `veille/categorisation.py` | Classement des programmes dans les catégories du classeur manuel |
+| `veille/classeur.py` | Distribution vers le classeur manuel : fusion à trois voies, état local |
 | `appscript/Code.gs` | Le script à coller dans le Sheet (Extensions → Apps Script) |
 | `veille/main.py` | Orchestrateur et point d'entrée CLI |
 | `veille/config.py` | Configuration (variables d'environnement) |
@@ -161,6 +163,29 @@ deux exécutions simultanées ne peuvent pas se marcher dessus.
 Le pipeline choisit tout seul : si `APPSCRIPT_URL` est défini, il passe par la
 passerelle ; sinon par le compte de service.
 
+## Classeur manuel (2ᵉ Google Sheet, facultatif)
+
+En plus du Sheet du robot, le pipeline peut distribuer la même collecte (aucun
+scraping supplémentaire) dans le **classeur personnel** de l'utilisatrice,
+organisé par onglets de catégories. Activation : coller le même `Code.gs` dans
+le classeur, le déployer, puis renseigner `CLASSEUR_APPSCRIPT_URL` et
+`CLASSEUR_APPSCRIPT_TOKEN` dans `.env`.
+
+Principes ([veille/classeur.py](veille/classeur.py)) :
+
+- **Catégorie** : héritée du champ `categorie` de la source dans `sources.json` ;
+  les agrégateurs multi-secteurs (`categorie_mots_cles: true`) sont classés
+  programme par programme par mots-clés ([veille/categorisation.py](veille/categorisation.py)) ;
+  repli « À classer » ; règle transversale « autochtone » → onglet Autochtones.
+- **Fusion à trois voies** : base mémorisée dans `etat/classeur-etat.json`
+  (exclu de git) vs contenu actuel du classeur vs collecte du jour. Une cellule
+  modifiée à la main n'est **jamais** réécrite ; une ligne supprimée n'est
+  jamais ré-ajoutée (`python -m veille.classeur --reactiver <id>` pour annuler) ;
+  une ligne déplacée d'onglet est suivie par sa clé (`rbt:<id_unique>`,
+  colonne AI) ; les onglets sont suivis par gid (renommage sans casse).
+- **Valeurs seulement** : la passerelle n'écrit ni couleur ni mise en forme —
+  les codes couleurs manuels sont intacts par construction.
+
 ## Exécution quotidienne — en local sous Windows
 
 Tout tourne sur le poste de l'organisme, sans aucun service infonuagique :
@@ -176,9 +201,9 @@ Tout tourne sur le poste de l'organisme, sans aucun service infonuagique :
    - crée l'environnement virtuel `.venv-windows` et installe les dépendances ;
    - crée `.env` à partir du modèle au premier passage — le remplir (voir
      section précédente), puis relancer.
-3. Initialiser le Sheet (onglets + mise en forme conditionnelle) :
-   `lancer_veille.bat init`
-4. Relancer `lancer_veille.bat` : la première collecte remplit la feuille.
+3. `lancer_veille.bat init` : initialise le Sheet (onglets + mise en forme
+   conditionnelle) puis **enchaîne la première collecte** — la feuille est
+   remplie dès la fin du déploiement.
 
 **Au quotidien :** la tâche `VeilleSubventions` s'exécute chaque matin à 7 h si
 le poste est **allumé et la session ouverte** ; sinon, un double-clic rattrape
@@ -212,9 +237,8 @@ Mise en route, en SSH depuis le dossier du projet :
 ```bash
 chmod +x lancer_veille.sh
 ./lancer_veille.sh              # 1er passage : installe tout, crée .env → le remplir
-./lancer_veille.sh init         # une fois : onglets + mise en forme du Sheet
-./lancer_veille.sh              # collecte immédiate (vérification)
-./lancer_veille.sh planifier    # inscrit la tâche cron quotidienne (7 h)
+./lancer_veille.sh init         # une fois : structure du Sheet + première collecte enchaînée
+./lancer_veille.sh planifier    # inscrit la tâche cron (7 h) + collecte immédiate
 ```
 
 Sans accès SSH : dans **cPanel → Tâches Cron**, ajoutez une tâche quotidienne

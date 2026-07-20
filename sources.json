@@ -5,6 +5,7 @@
       "id": "ville-trois-rivieres",
       "nom": "Ville de Trois-Rivières — Soutien aux organismes et artistes",
       "palier": "Municipal",
+      "categorie": "Régional - Mauricie",
       "actif": true,
       "notes": "Page centrale des programmes municipaux : médiation culturelle, soutien aux activités culturelles (appels périodiques), mise en valeur du patrimoine et soutien au fonctionnement des organismes culturels professionnels. Contact : subventionsculture@v3r.net.",
       "pages": [
@@ -37,6 +38,7 @@
       "id": "culture-trois-rivieres",
       "nom": "Culture Trois-Rivières",
       "palier": "Municipal",
+      "categorie": "Régional - Mauricie",
       "actif": true,
       "notes": "Testé 2026-07-15 : 4 programmes extraits (2 appels de projets + 2 mesures scolaires). La page « Trouver du financement » pointe vers quebec.ca, d'où domaines_supplementaires. Les appels affichent « aucun appel en cours » hors période : la règle continue de les extraire avec la note de statut dans notes_agent.",
       "pages": [
@@ -94,6 +96,7 @@
       "id": "ville-shawinigan",
       "nom": "Ville de Shawinigan — Programmes et aide financière",
       "palier": "Municipal",
+      "categorie": "Régional - Mauricie",
       "actif": true,
       "notes": "Testé 2026-07-15 : 2 programmes extraits (Soutien aux événements, Commandites et contributions) sur la page Programmes et aide financière ; « Ambassadeurs sportifs » exclu (non culturel). Les tuiles Divi n'ont pas de href statique (lien ajouté en JavaScript), l'URL retenue est donc celle de la page de liste. Les 2 autres pages ne contiennent aucun programme de financement — envisager de les retirer de la source. Pages retirées le 2026-07-15 (aucun contenu de financement) : https://www.shawinigan.ca/loisirs-et-culture/arts-et-culture/, https://cultureshawinigan.ca/",
       "pages": [
@@ -125,6 +128,7 @@
       "id": "culture-mauricie",
       "nom": "Culture Mauricie",
       "palier": "Régional",
+      "categorie": "Régional - Mauricie",
       "actif": true,
       "notes": "Conseil régional de la culture : page centrale des appels de dossiers en Mauricie (toutes disciplines) et gestion de l'Entente sectorielle de développement de la culture (1,125 M$ 2024-2026, aide jusqu'à 80 % pour OBNL/coops).",
       "pages": [
@@ -284,6 +288,7 @@
       "id": "calq-partenariat-mauricie",
       "nom": "CALQ — Partenariat territorial de la Mauricie",
       "palier": "Régional",
+      "categorie": "Régional - Mauricie",
       "actif": true,
       "notes": "Entente CALQ + MRC des Chenaux/Maskinongé/Mékinac + villes de Trois-Rivières et Shawinigan + Culture Mauricie (~172 000 $/an) pour artistes professionnels et organismes artistiques du territoire ; appel 2026 avec date limite le 23 juillet 2026.",
       "pages": [
@@ -339,6 +344,7 @@
       "id": "mrc-maskinonge",
       "nom": "MRC de Maskinongé — Fonds d'initiatives culturelles",
       "palier": "Régional",
+      "categorie": "Régional - Mauricie",
       "actif": true,
       "notes": "Testé 2026-07-15 : 3 programmes extraits (1 par page, blocs div.page__content). CHANGEMENT D'URL : https://mrcmaskinonge.ca/culture/fonds-initiatives-culturelles redirige (301) vers https://culturemaskinonge.com/fonds-initiatives-culturelles/ — l'URL de la page a été mise à jour vers la destination. Les dates de dépôt intermédiaires (février/mai/août) n'ont pas d'année dans le texte ; seule la dernière (13 novembre 2026) est captée.",
       "pages": [
@@ -414,6 +420,7 @@
       "id": "mrc-mekinac",
       "nom": "MRC de Mékinac — Fonds d'appui aux initiatives culturelles",
       "palier": "Régional",
+      "categorie": "Régional - Mauricie",
       "actif": true,
       "notes": "Testé 2026-07-15 : 5 fonds extraits avec leur fiche dédiée (FLI/FLS, Fonds d'appui aux initiatives culturelles, Fonds Saines habitudes de vie, FRR volets 2-3, FRR volet 4 Vitalisation). Le contenu propre de la page est un texte générique sur le service de développement économique ; la liste des fonds n'existe que dans le menu (id de menu WordPress stables). Le menu est dupliqué dans le HTML (ul#menu-main et ul#menu-main-1) : la règle est ancrée sur ul#menu-main pour éviter les doublons.",
       "pages": [
@@ -443,6 +450,7 @@
       "id": "mrc-des-chenaux",
       "nom": "MRC des Chenaux — Culture et soutien financier",
       "palier": "Régional",
+      "categorie": "Régional - Mauricie",
       "actif": true,
       "notes": "Testé 2026-07-15 : 2 programmes extraits (1 par page). Les deux pages décrivent la même Politique de soutien aux projets structurants sous deux angles (politique / FRR) ; noms de programme distincts pour éviter la confusion. Aucune date limite publiée dans le HTML.",
       "pages": [
@@ -494,6 +502,7 @@
       "id": "mcc-ententes-developpement-culturel",
       "nom": "MCC — Ententes de développement culturel",
       "palier": "Régional",
+      "categorie": "Médiation",
       "actif": true,
       "notes": "Testé 2026-07-15 : 1 programme extrait, date_limite 2025-01-24 (dernière période de dépôt, fermée). Le composant qc-notice de quebec.ca porte l'avis de période de dépôt : quand une nouvelle période ouvrira, la même regex captera la nouvelle date. Programme s'adressant aux municipalités/MRC (les OBNL en bénéficient indirectement via les ententes locales).",
       "pages": [
@@ -528,6 +537,7 @@
       "id": "desjardins-fadm-mauricie",
       "nom": "Desjardins — Fonds d'aide au développement du milieu (caisses de la Mauricie)",
       "palier": "Régional",
+      "categorie": "Fondations et autres",
       "actif": false,
       "notes": "Désactivée le 2026-07-15 : le FADM n'a plus de page centrale (géré caisse par caisse) ; la page restante n'exposerait que le Fonds du Grand Mouvement, déjà couvert par la source desjardins-fonds-grand-mouvement. Testé 2026-07-15 : 1 programme extrait (Fonds du Grand Mouvement, avec sa fiche fonds-grand-mouvement.html). ATTENTION : le contenu FADM (Fonds d'aide au développement du milieu) a disparu du site central Desjardins — les URL candidates FADM renvoient vers la page d'erreur (404) ; le FADM est géré caisse par caisse sans page centrale scrapable (contacter la caisse locale, appel de projets annuel généralement en octobre). La page liste aussi « Commandites et partenariats philanthropiques » (projets liés à la culture, formulaire sur static.desjardins.com) mais ce bloc n'a pas de structure isolable proprement — mentionné ici pour suivi manuel. Doublon possible avec la source desjardins-fonds-grand-mouvement (même fiche visée) : à arbitrer quand ses règles seront écrites. Page instable le 2026-07-14 au soir (servait temporairement le contenu détaillé du Fonds du Grand Mouvement) ; la version hub est redevenue stable le 2026-07-15.",
       "pages": [
@@ -565,6 +575,7 @@
       "id": "fondation-communautaire-saint-maurice",
       "nom": "Fondation communautaire du Saint-Maurice",
       "palier": "Régional",
+      "categorie": "Fondations et autres",
       "actif": true,
       "notes": "Testé 2026-07-15 : 10 fonds à vocation culturelle extraits (sur ~120 fonds au total). CHANGEMENT D'URL : https://www.fondationcommunautairedustm.ca/5773-liste_des_fonds renvoie « Page introuvable » — remplacée par https://www.fondationcommunautairedustm.ca/fonds. Les fonds sont des fonds de dotation dédiés (pas des appels à projets) : le filtre thématique évite d'inonder le tableau avec la centaine de fonds famille/santé non culturels.",
       "pages": [
@@ -594,6 +605,7 @@
       "id": "calq-organismes",
       "nom": "CALQ — Programmes pour organismes",
       "palier": "Provincial",
+      "categorie": "Grands programmes",
       "actif": true,
       "notes": "Source provinciale centrale : page-filtre listant tous les programmes pour organismes (soutien à la mission, projets, diffusion) par discipline, région et statut ouvert/fermé. Filtre régional retiré le 2026-07-15 à la demande de l'utilisateur (couverture maximale) : les Partenariats territoriaux de toutes les régions remontent désormais, pas seulement la Mauricie.",
       "pages": [
@@ -626,6 +638,7 @@
       "id": "mcc-quebec",
       "nom": "MCC Québec — Aide financière en culture",
       "palier": "Provincial",
+      "categorie": "Grands programmes",
       "actif": true,
       "notes": "Portail central du MCC : index des appels de projets culturels actifs par secteur et volet Accueil (jusqu'à 75 % des dépenses, max 50 000 $) pour organismes en développement.",
       "pages": [
@@ -733,6 +746,7 @@
       "id": "mcc-mecenat-placements-culture",
       "nom": "MCC — Mécénat Placements Culture",
       "palier": "Provincial",
+      "categorie": "Grands programmes",
       "actif": true,
       "notes": "Programme d'appariement qui multiplie les dons privés recueillis par l'OBNL (fonds de dotation ou de réserve) ; très pertinent si l'organisme développe une stratégie philanthropique. Fiche unique : la date_limite provient de l'avis qc-notice (« déposée en tout temps » → continu). 1 programme extrait au test.",
       "pages": [
@@ -763,6 +777,7 @@
       "id": "sodec-musique-varietes",
       "nom": "SODEC — Musique et variétés",
       "palier": "Provincial",
+      "categorie": "Grands programmes",
       "actif": true,
       "notes": "Page-liste partagée avec sodec-metiers-dart : chaque source cible le panneau accordéon de son domaine (id CSS distinct), donc aucun doublon entre les deux. Les 5 programmes génériques multi-domaines (développement entrepreneurial, associations, événements culturels, initiatives innovantes, projets stratégiques) sont rattachés à cette source-ci et exclus de sodec-metiers-dart. Pas de dates sur la page-liste (les dates de dépôt sont sur les fiches). 9 programmes extraits au test.",
       "pages": [
@@ -791,6 +806,7 @@
       "id": "sodec-metiers-dart",
       "nom": "SODEC — Métiers d'art et marché de l'art",
       "palier": "Provincial",
+      "categorie": "Grands programmes",
       "actif": true,
       "notes": "Page 1 (fiche « Aide aux entreprises en métiers d'art ») : 1 programme avec ses 4 volets en notes et la prochaine date de dépôt (22 octobre 2026 au test). Page 2 (liste partagée) : ne garde que « Soutien au marché de l'art » ; les génériques multi-domaines sont rattachés à sodec-musique-varietes et le programme métiers d'art y est exclu car déjà extrait (avec date) par la page 1 — évite les doublons intra- et inter-sources. 2 programmes extraits au test.",
       "pages": [
@@ -848,6 +864,7 @@
       "id": "cmaq-metiers-dart",
       "nom": "Conseil des métiers d'art du Québec (CMAQ)",
       "palier": "Provincial",
+      "categorie": "Arts visuels",
       "actif": true,
       "notes": "CHANGEMENT D'URL : l'ancienne page https://www.metiersdart.ca/services/aide-financiere redirige (301) vers une section réservée aux membres (« Vous devez vous identifier ») — morte pour le scraping. La liste /news est chargée en AJAX (module gi2 fe_news, même famille que culture-mauricie) donc non exploitable ; en remplacement : (1) les tuiles d'actualités de la page d'accueil, rendues côté serveur, filtrées sur les mots-clés d'appels/bourses/prix ; (2) la fiche publique du programme Soutien individuel. 3 programmes extraits au test (2 appels + Soutien individuel).",
       "pages": [
@@ -899,6 +916,7 @@
       "id": "emploi-quebec-subvention-salariale",
       "nom": "Services Québec — Subvention salariale (OBNL)",
       "palier": "Provincial",
+      "categorie": "Travailleurs",
       "actif": true,
       "notes": "CHANGEMENT D'URL : https://www.quebec.ca/emploi/subvention-salariale n'existe plus (redirection 307 vers le portail /emploi) et quebec.ca n'a plus de page HTML dédiée à la mesure générale (seules les variantes PRIIME/PAIPNI ont des pages sous /entreprises-et-travailleurs-autonomes). La documentation officielle vit maintenant dans le Guide des mesures et des services d'emploi (accueil.servicesquebec.gouv.qc.ca), section 5.3 ; la fiche programme et le formulaire OBNL (EQ-6444) sont des PDF. 1 programme extrait au test (ligne de veille avec lien vers le guide PDF).",
       "pages": [
@@ -932,6 +950,7 @@
       "id": "conseil-arts-canada",
       "nom": "Conseil des arts du Canada",
       "palier": "Fédéral",
+      "categorie": "Grands programmes",
       "actif": true,
       "notes": "Principal bailleur fédéral des arts : page maîtresse listant tous les programmes (création, production, diffusion, tournées, financement de base pluriannuel) pour organismes et artistes de toutes disciplines.",
       "domaines_supplementaires": [
@@ -993,6 +1012,7 @@
       "id": "patrimoine-canadien",
       "nom": "Patrimoine canadien — Programmes de financement",
       "palier": "Fédéral",
+      "categorie": "Patrimoine",
       "actif": true,
       "notes": "Point d'entrée officiel listant tous les fonds de Patrimoine canadien, dont le Fonds pour l'investissement en culture, le Fonds de formation dans le secteur des arts et le Fonds de la musique du Canada.",
       "pages": [
@@ -1025,6 +1045,7 @@
       "id": "fcpa-presentation-arts",
       "nom": "Fonds du Canada pour la présentation des arts (FCPA)",
       "palier": "Fédéral",
+      "categorie": "Grands programmes",
       "actif": true,
       "notes": "La fiche liste 3 volets, chacun avec sa page de demande : Soutien à la programmation (festivals artistiques et diffuseurs de saisons ; organismes d'appui à la diffusion) et Soutien au développement. Financement renouvelé (annonce du 4 novembre 2025 : 46,5 M$ sur 3 ans à compter de 2026-2027). ATTENTION : www.canada.ca rejette curl en HTTP/2 (INTERNAL_ERROR) mais répond normalement à requests (HTTP/1.1) — le pipeline n'est pas affecté. 3 programmes extraits au test.",
       "pages": [
@@ -1053,6 +1074,7 @@
       "id": "fcec-espaces-culturels",
       "nom": "Fonds du Canada pour les espaces culturels (FCEC)",
       "palier": "Fédéral",
+      "categorie": "Grands programmes",
       "actif": true,
       "notes": "Fiche unique. Le FCEC accepte les demandes en continu pour des dépenses engagées entre le 1er avril 2026 et le 31 mars 2028 (jusqu'à épuisement des fonds) ; programme en cours de modification, pas de demandes pour les projets débutant après le 1er avril 2028. 1 programme extrait au test.",
       "pages": [
@@ -1081,6 +1103,7 @@
       "id": "dcap-developpement-communautes",
       "nom": "Développement des communautés par le biais des arts et du patrimoine (DCAP)",
       "palier": "Fédéral",
+      "categorie": "Patrimoine",
       "actif": true,
       "notes": "La fiche liste les 3 volets, chacun avec sa page : Festivals locaux, Commémorations communautaires, Fonds des legs. 3 programmes extraits au test.",
       "pages": [
@@ -1109,6 +1132,7 @@
       "id": "musicaction",
       "nom": "Musicaction",
       "palier": "Fédéral",
+      "categorie": "Grands programmes",
       "actif": true,
       "notes": "Financement de la musique francophone canadienne (via le Fonds de la musique du Canada) : production d'albums, émergence, événements et vitrines, commercialisation ; la page Programmes liste tous les volets et leurs dépôts.",
       "pages": [
@@ -1190,6 +1214,7 @@
       "id": "factor",
       "nom": "FACTOR",
       "palier": "Fédéral",
+      "categorie": "Grands programmes",
       "actif": true,
       "notes": "Volet anglophone/pancanadien du Fonds de la musique du Canada (développement d'artistes, spectacles et tournées) ; page dédiée au calendrier des dates limites. Site en anglais seulement.",
       "pages": [
@@ -1274,6 +1299,7 @@
       "id": "fonds-radiostar",
       "nom": "Fonds RadioStar / Radio Starmaker Fund",
       "palier": "Fédéral",
+      "categorie": "Grands programmes",
       "actif": true,
       "notes": "5 volets de commercialisation extraits au test : Accès 1 (maison de disques reconnue), Accès 2 (seuils de ventes), Accès 3A (CLOSM), Accès 3B (Québec, projet prometteur) et Projet collectif. Les dates de dépôt sont sur les fiches de volet, pas sur la liste.",
       "pages": [
@@ -1310,6 +1336,7 @@
       "id": "fondation-socan",
       "nom": "Fondation SOCAN",
       "palier": "Fédéral",
+      "categorie": "Grands programmes",
       "actif": true,
       "notes": "6 programmes distincts extraits au test (7 blocs : « Aide aux commandes d'œuvres » apparaît dans les sections individus ET organisations avec la même URL — même id_unique, dédupliqué en aval). « Aide à la musique canadienne » est exclu tant que marqué ( Fermé). Pas de dates sur la page-liste. Site principalement destiné aux créateurs individuels ; le volet organismes (Aide au financement de base) vise les OBNL musicaux.",
       "pages": [
@@ -1345,6 +1372,7 @@
       "id": "emplois-ete-canada",
       "nom": "Emplois d'été Canada (EDSC)",
       "palier": "Fédéral",
+      "categorie": "Travailleurs",
       "actif": true,
       "notes": "Fiche unique (page vitrine employeurs/jeunes/résultats). Hors période d'appel, la page n'affiche aucune date limite ; quand l'appel d'automne ouvre, la date apparaîtra probablement dans une alerte — à surveiller via l'avertissement « 0 programme extrait » si la mise en page change. 1 programme extrait au test.",
       "pages": [
@@ -1369,6 +1397,7 @@
       "id": "desjardins-fonds-grand-mouvement",
       "nom": "Desjardins — Fonds du Grand Mouvement",
       "palier": "Privé",
+      "categorie": "Fondations et autres",
       "actif": true,
       "notes": "Page-fiche d'un fonds unique → 1 ligne extraite au test réel (nom via h1, montant « 280 M$ » via regex — le montant est l'enveloppe globale du fonds jusqu'en 2027, pas un montant par projet). Aucune date limite sur la page (dépôt via la caisse locale).",
       "pages": [
@@ -1400,6 +1429,7 @@
       "id": "fondation-mcconnell",
       "nom": "Fondation McConnell",
       "palier": "Privé",
+      "categorie": "Fondations et autres",
       "actif": true,
       "notes": "Page-fiche unique → 1 ligne extraite au test réel. La page décrit le processus (rencontres virtuelles, portail des contributions) sans appel daté ni montant.",
       "pages": [
@@ -1425,6 +1455,7 @@
       "id": "fondation-azrieli",
       "nom": "Fondation Azrieli — Musique, arts et culture",
       "palier": "Privé",
+      "categorie": "Fondations et autres",
       "actif": true,
       "notes": "Page thématique sans appel structuré → 1 ligne extraite au test réel (nom « Musique, arts et culture » via le h2 de bannière ; pas de balise main, classes Avia instables → bloc = page entière). Les blocs h1 de la page sont des exemples d'organismes financés pointant vers des domaines externes (CNA, MusiCare, MACM…) — volontairement ignorés.",
       "pages": [
@@ -1449,6 +1480,7 @@
       "id": "fonds-cogeco",
       "nom": "Fonds Cogeco",
       "palier": "Privé",
+      "categorie": "Fondations et autres",
       "actif": true,
       "notes": "Page corporative (mission, CA, historique) → 1 ligne extraite au test réel. Attention : la page ne propose aucun formulaire de demande de don ; le seul lien de demande concerne le programme TV via ipf.ca (domaine externe, non extrait). Utilité de veille limitée mais la mission « dons » est confirmée noir sur blanc.",
       "pages": [
@@ -1473,6 +1505,7 @@
       "id": "rbc-artistes-emergents",
       "nom": "RBC Fondation — Artistes émergents",
       "palier": "Privé",
+      "categorie": "Fondations et autres",
       "actif": true,
       "notes": "7 programmes extraits au test réel (cartes div.program-card ; Ownr exclu — outil d'immatriculation d'entreprise, pas une subvention). LIMITE CONNUE : le serveur rbc.com n'annonce pas charset=utf-8 → les accents sortent en mojibake (« Bourse AccÃ©lÃ©rer ») dans les noms, notes et 2 URL musicounts.ca ; corrigeable côté extracteur (utiliser reponse.apparent_encoding ou honorer <meta charset>). Les cartes pointent vers des sites partenaires : toute nouvelle carte vers un domaine absent de domaines_supplementaires sera rejetée — ajouter le domaine au besoin.",
       "pages": [
@@ -1512,6 +1545,7 @@
       "id": "td-prets-a-agir",
       "nom": "TD — La promesse Prêts à agir",
       "palier": "Privé",
+      "categorie": "Fondations et autres",
       "actif": true,
       "notes": "3 programmes extraits au test réel : Dons d'entreprise et commandites (→ portail cybergrants.com), Subvention de la FAE TD, Défi Prêts à agir (les bourses d'études pour étudiants sont exclues — hors sujet OBNL). Les 4 dates limites trimestrielles (6 janv., 6 avr., 6 juil., 5 oct. 2026) sont dans un tableau table.cmp-chart__chart hors des blocs teaser → non rattachables à un programme précis, donc non extraites ; elles ne valent que pour les dons d'entreprise/commandites.",
       "pages": [
@@ -1545,6 +1579,7 @@
       "id": "fondation-bombardier",
       "nom": "Fondation J. Armand Bombardier",
       "palier": "Privé",
+      "categorie": "Fondations et autres",
       "actif": true,
       "notes": "CHANGEMENT D'URL : l'ancienne page https://philanthropie.fondationbombardier.ca/fr/soumettre-une-demande/ répond 200 mais est une coquille vide (en-tête, pied de page et popup seulement, titre « …Staging ») — remplacée par la sous-page « Soumettre une nouvelle demande de don » qui porte le contenu réel (section Elementor wp-post). 1 ligne extraite au test réel. Sous-pages sœurs utiles : /admissibilite/, /dons-majeurs-campagnes-majeures/.",
       "pages": [
@@ -1572,6 +1607,7 @@
       "id": "hydro-quebec-dons-commandites",
       "nom": "Hydro-Québec — Dons et commandites",
       "palier": "Privé",
+      "categorie": "Fondations et autres",
       "actif": true,
       "notes": "Page-fiche unique → 1 ligne extraite au test réel. La page d'accueil dons-commandites ne mentionne ni « en tout temps » ni le délai de 90 jours (ces détails sont dans la sous-page Soumettre une demande) — date_limite volontairement omise plutôt que fixée à « continu » sans preuve.",
       "pages": [
@@ -1597,6 +1633,7 @@
       "id": "fondation-beati",
       "nom": "Fondation Béati",
       "palier": "Privé",
+      "categorie": "Fondations et autres",
       "actif": true,
       "notes": "1 ligne extraite au test réel : nom « Programme régulier » (h2.uk-heading-medium), montant « 30 000 $ par an, pour un total de 90 000 $ » et état de l'appel extraits dynamiquement (au test : « L'appel à initiatives est maintenant fermé… Le prochain appel à initiatives ouvrira à l'automne 2026. »). La date limite affichée (« 15 Janvier ») est sans année → non normalisable, volontairement omise ; le cycle est : ouverture mi-octobre, dépôt lettre d'intention jusqu'au 15 janvier.",
       "pages": [
@@ -1628,6 +1665,7 @@
       "id": "power-corporation-dons",
       "nom": "Power Corporation — Demandes de dons",
       "palier": "Privé",
+      "categorie": "Fondations et autres",
       "actif": true,
       "notes": "1 ligne extraite au test réel ; pas de balise main → bloc = page entière, nom via h1 unique « Demandes de dons ». La note dynamique capte l'état du portail (au test : « Le processus de soumission des demandes de dons est actuellement fermé. Nous serons heureux d'examiner votre demande à compter du lundi 3 août 2026… ») — c'est exactement la fenêtre de réouverture à surveiller mentionnée dans les notes de la source.",
       "pages": [
@@ -1652,6 +1690,7 @@
       "id": "imagine-canada-grant-connect",
       "nom": "Imagine Canada — ConnexionSubvention",
       "palier": "Privé",
+      "categorie": "Fondations et autres",
       "actif": false,
       "notes": "Vérifié le 2026-07-15 : la page publique ne contient que du marketing (avantages, tarifs, témoignages) — rien à extraire, ni maintenant ni après ajustement de règles. Recommandation : \"actif\": false (outil de prospection manuelle sur abonnement, pas une source de veille automatisable).",
       "pages": [
@@ -1666,6 +1705,8 @@
       "id": "subventions-obnl-repertoire",
       "nom": "Subventions-OBNL.ca — Répertoire arts et culture Québec",
       "palier": "Privé",
+      "categorie": "À classer",
+      "categorie_mots_cles": true,
       "actif": true,
       "notes": "Répertoire agrégateur bien structuré (4 tableaux HTML rp-table) : 93 programmes extraits au test réel, 0 rejet — 16 municipaux, 25 provinciaux, 19 fédéraux, 33 privés. Le palier est extrait de la classe de ligne (rp-row-municipal/provincial/federal/prive) et normalisé par le validateur. Dates : 14 échéances datées + 22 « continu » ; les cellules sans date complète (ex. « 15 janv. » sans année, « Prochain appel : automne 2026 ») restent vides — voulu. Limites : 2 cas où la date captée est une date de lancement/réouverture plutôt qu'une échéance (« Appel lancé le 20 mai 2026 », « Plateforme rouverte dès le 1er juin 2026 ») ; les URL pointent vers les fiches internes de subventions-obnl.ca (même domaine) ; fort recoupement attendu avec les sources officielles (CALQ, SODEC, Patrimoine canadien, Béati, Desjardins…) — les id_unique diffèrent par l'URL, donc pas de déduplication automatique inter-sources.",
       "pages": [
@@ -1701,6 +1742,7 @@
       "id": "fondation-cypihot-ouellette",
       "nom": "Fondation Cypihot-Ouellette",
       "palier": "Privé",
+      "categorie": "Fondations et autres",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -1734,6 +1776,7 @@
       "id": "fondation-trois-rivieres-durable",
       "nom": "Fondation Trois-Rivières durable — Éclore fonds environnement",
       "palier": "Privé",
+      "categorie": "Environnement",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -1806,6 +1849,7 @@
       "id": "cqpv-patrimoine-vivant",
       "nom": "Conseil québécois du patrimoine vivant (CQPV)",
       "palier": "Provincial",
+      "categorie": "Patrimoine",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -1836,6 +1880,7 @@
       "id": "centraide-mauricie",
       "nom": "Centraide Mauricie",
       "palier": "Régional",
+      "categorie": "Fondations et autres",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -1870,6 +1915,7 @@
       "id": "fondation-aveugles-quebec",
       "nom": "Fondation des Aveugles du Québec",
       "palier": "Privé",
+      "categorie": "Handicap",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -1900,6 +1946,7 @@
       "id": "urls-mauricie",
       "nom": "Unité régionale de loisir et de sport de la Mauricie (URLSM)",
       "palier": "Régional",
+      "categorie": "Régional - Mauricie",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -1931,6 +1978,7 @@
       "id": "faqdd",
       "nom": "Fonds d'action québécois pour le développement durable (FAQDD)",
       "palier": "Provincial",
+      "categorie": "Environnement",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -1964,6 +2012,7 @@
       "id": "fondation-dufresne-gauthier",
       "nom": "Fondation Dufresne et Gauthier",
       "palier": "Privé",
+      "categorie": "Fondations et autres",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -1998,6 +2047,7 @@
       "id": "conseil-patrimoine-religieux",
       "nom": "Conseil du patrimoine religieux du Québec (CPRQ)",
       "palier": "Provincial",
+      "categorie": "Patrimoine",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2031,6 +2081,7 @@
       "id": "conseil-arts-montreal",
       "nom": "Conseil des arts de Montréal (CAM)",
       "palier": "Municipal",
+      "categorie": "Montréal",
       "actif": true,
       "notes": "Réservé aux artistes, collectifs et OBNL artistiques de l'île de Montréal. La liste des ~52 programmes (artsmontreal.org/aides/programmes/) est chargée en JavaScript ; on scrape le sitemap XML WordPress (program-sitemap.xml), rendu côté serveur, qui référence chaque fiche de programme. Le nom extrait est le slug d'URL (ex. « aide-projets-collectifs-artistes ») ; les fiches anglaises (/en/grants/) sont ignorées. Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2060,6 +2111,7 @@
       "id": "dec-quebec",
       "nom": "Développement économique Canada pour les régions du Québec (DEC)",
       "palier": "Fédéral",
+      "categorie": "Entrepreneuriat",
       "actif": true,
       "notes": "Page « Financement et services » : PDEQ, CERI, PDC, mutualisation en économie sociale, entrepreneuriat des communautés noires, croissance du tourisme, etc. Ouvert aux OBNL et PME de toutes les régions du Québec (dépôt continu pour plusieurs programmes). Le libellé d'état (« Accepte les demandes ») est dans notes_agent. Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2092,6 +2144,7 @@
       "id": "mapaq-aide-financiere",
       "nom": "MAPAQ — Aide financière en agriculture et agroalimentaire",
       "palier": "Provincial",
+      "categorie": "Agroalimentaire",
       "actif": true,
       "notes": "Portail « Aide financière en agriculture » du MAPAQ sur Québec.ca : Proximité, PADAAR, développement territorial et sectoriel, transformation, etc. Ouvert aux entreprises et OBNL du secteur bioalimentaire de tout le Québec. Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2118,6 +2171,7 @@
       "id": "melccfp-programmes",
       "nom": "MELCCFP — Programmes et appels de projets en environnement",
       "palier": "Provincial",
+      "categorie": "Environnement",
       "actif": true,
       "domaines_supplementaires": [
         "ceaeq.gouv.qc.ca",
@@ -2147,6 +2201,7 @@
       "id": "ville-montreal-programmes",
       "nom": "Ville de Montréal — Répertoire des programmes",
       "palier": "Municipal",
+      "categorie": "Montréal",
       "actif": true,
       "notes": "Réservé en général aux organismes, entreprises et citoyens montréalais. Répertoire officiel filtré par type : Subvention (SUBV), Appel à projets (APPR), Prix et concours (PEDT). Le filtre multi-valeurs renvoie une erreur 500, d'où une série de pages par type. La pagination (12 résultats/page) peut s'allonger : ajouter des pages si le site en annonce plus. Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2399,6 +2454,7 @@
       "id": "tourisme-mauricie-financement",
       "nom": "Tourisme Mauricie — Programmes de financement",
       "palier": "Régional",
+      "categorie": "Tourisme",
       "actif": true,
       "domaines_supplementaires": [
         "fondsecoleader.ca",
@@ -2432,6 +2488,7 @@
       "id": "ministere-tourisme-quebec",
       "nom": "Ministère du Tourisme du Québec — Aide financière",
       "palier": "Provincial",
+      "categorie": "Tourisme",
       "actif": true,
       "notes": "Portail « Aide financière en tourisme » : PAFET (festivals et événements), EPRTNT, PAET (accessibilité), fonds de développement, tourisme d'affaires, etc. Ouvert aux OBNL de tout le Québec. Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2458,6 +2515,7 @@
       "id": "assnat-programmation-citoyenne",
       "nom": "Assemblée nationale du Québec — Programmation citoyenne",
       "palier": "Provincial",
+      "categorie": "Médiation",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2491,6 +2549,7 @@
       "id": "ciusss-mcq-etre-mieux-ensemble",
       "nom": "CIUSSS MCQ — Être mieux… ensemble!",
       "palier": "Régional",
+      "categorie": "Économie sociale",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2521,6 +2580,7 @@
       "id": "fondation-monique-fitz-back",
       "nom": "Fondation Monique-Fitz-Back",
       "palier": "Privé",
+      "categorie": "Environnement",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2565,6 +2625,7 @@
       "id": "codes-dacces",
       "nom": "Codes d'accès — Appels à projets",
       "palier": "Provincial",
+      "categorie": "Grands programmes",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2601,6 +2662,7 @@
       "id": "cql-prix-reconnaissance",
       "nom": "Conseil québécois du loisir — Prix Reconnaissance en loisir",
       "palier": "Provincial",
+      "categorie": "À classer",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2625,6 +2687,7 @@
       "id": "reseau-urls-repertoire-subventions",
       "nom": "Réseau des URLS — Répertoire des subventions (loisir, sport, culture)",
       "palier": "Provincial",
+      "categorie": "À classer",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2649,6 +2712,7 @@
       "id": "prompt-quebec",
       "nom": "Prompt — Programmes de financement",
       "palier": "Provincial",
+      "categorie": "Innovation - techno",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2679,6 +2743,7 @@
       "id": "prima-quebec",
       "nom": "PRIMA Québec — Programmes de financement",
       "palier": "Provincial",
+      "categorie": "Innovation - techno",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2706,6 +2771,7 @@
       "id": "mitacs",
       "nom": "Mitacs — Programmes",
       "palier": "Fédéral",
+      "categorie": "Innovation - techno",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2736,6 +2802,7 @@
       "id": "digital-supercluster",
       "nom": "DIGITAL (Digital Supercluster) — Calls for Proposals",
       "palier": "Fédéral",
+      "categorie": "Innovation - techno",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2769,6 +2836,7 @@
       "id": "hexagram",
       "nom": "Hexagram — Appels (recherche-création)",
       "palier": "Provincial",
+      "categorie": "Science et art",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2795,6 +2863,7 @@
       "id": "crim-declic-ia",
       "nom": "CRIM — DÉCLIC IA",
       "palier": "Provincial",
+      "categorie": "Innovation - techno",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2825,6 +2894,7 @@
       "id": "zu-montreal",
       "nom": "Zú — Programmes (créativité numérique)",
       "palier": "Privé",
+      "categorie": "Innovation - techno",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2851,6 +2921,7 @@
       "id": "caisse-economie-solidaire",
       "nom": "Caisse d'économie solidaire Desjardins — Dons et commandites",
       "palier": "Privé",
+      "categorie": "Économie sociale",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2876,6 +2947,7 @@
       "id": "banque-nationale-commandites",
       "nom": "Banque Nationale — Commandites",
       "palier": "Privé",
+      "categorie": "Fondations et autres",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2901,6 +2973,7 @@
       "id": "odyssart-ofqj",
       "nom": "Odyssart (OFQJ) — Appel à projets France-Québec",
       "palier": "Provincial",
+      "categorie": "International",
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [
@@ -2931,6 +3004,8 @@
       "id": "quebec-aide-financiere-entreprises-organismes",
       "nom": "Québec.ca — Liste partielle des aides financières (entreprises et organismes)",
       "palier": "Provincial",
+      "categorie": "À classer",
+      "categorie_mots_cles": true,
       "actif": true,
       "notes": "Source ajoutée le 2026-07-15 depuis le classeur manuel.",
       "pages": [

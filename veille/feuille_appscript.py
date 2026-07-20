@@ -28,6 +28,33 @@ class ErreurAppScript(RuntimeError):
     pass
 
 
+def appeler_passerelle(url: str, jeton: str, action: str, **donnees) -> dict:
+    """Envoie une action à une passerelle Apps Script et retourne sa réponse JSON.
+
+    Partagée entre le Sheet du robot (FeuilleAppScript) et le classeur manuel
+    (veille.classeur) : même script Code.gs, déployé dans chaque document.
+    """
+    reponse = requests.post(
+        url,
+        json={"jeton": jeton, "action": action, **donnees},
+        timeout=DELAI_EXPIRATION_S,
+        allow_redirects=True,  # Apps Script répond par une redirection vers le résultat
+    )
+    reponse.raise_for_status()
+    try:
+        objet = reponse.json()
+    except (json.JSONDecodeError, ValueError) as exc:
+        # Réponse HTML = presque toujours un déploiement mal configuré.
+        raise ErreurAppScript(
+            "La passerelle Apps Script n'a pas répondu en JSON. Vérifier que le "
+            "déploiement est une « application Web » avec accès « Tout le monde », "
+            "et que l'URL est bien l'adresse qui se termine par /exec."
+        ) from exc
+    if not objet.get("ok"):
+        raise ErreurAppScript(f"Passerelle Apps Script : {objet.get('erreur', 'erreur inconnue')}")
+    return objet
+
+
 class FeuilleAppScript:
     def __init__(self, config: Config):
         if not config.appscript_url:
@@ -38,26 +65,7 @@ class FeuilleAppScript:
         self.jeton = config.appscript_jeton
 
     def _appeler(self, action: str, **donnees) -> dict:
-        """Envoie une action à la passerelle et retourne sa réponse JSON."""
-        reponse = requests.post(
-            self.url,
-            json={"jeton": self.jeton, "action": action, **donnees},
-            timeout=DELAI_EXPIRATION_S,
-            allow_redirects=True,  # Apps Script répond par une redirection vers le résultat
-        )
-        reponse.raise_for_status()
-        try:
-            objet = reponse.json()
-        except (json.JSONDecodeError, ValueError) as exc:
-            # Réponse HTML = presque toujours un déploiement mal configuré.
-            raise ErreurAppScript(
-                "La passerelle Apps Script n'a pas répondu en JSON. Vérifier que le "
-                "déploiement est une « application Web » avec accès « Tout le monde », "
-                "et que APPSCRIPT_URL est bien l'adresse qui se termine par /exec."
-            ) from exc
-        if not objet.get("ok"):
-            raise ErreurAppScript(f"Passerelle Apps Script : {objet.get('erreur', 'erreur inconnue')}")
-        return objet
+        return appeler_passerelle(self.url, self.jeton, action, **donnees)
 
     # ── Interface commune avec veille.feuille.Feuille ─────────────────────────
 

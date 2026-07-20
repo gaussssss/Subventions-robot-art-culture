@@ -34,6 +34,10 @@ class Config:
     # Passerelle Apps Script (alternative au compte de service — voir appscript/Code.gs)
     appscript_url: str | None
     appscript_jeton: str | None
+    # Classeur manuel (2e Google Sheet, organisé par onglets de catégories) :
+    # même Code.gs, déployé dans le classeur — voir veille/classeur.py.
+    classeur_appscript_url: str | None = None
+    classeur_appscript_jeton: str | None = None
 
     @property
     def url_feuille(self) -> str | None:
@@ -62,6 +66,8 @@ def charger_config() -> Config:
         compte_service_fichier=_env("GOOGLE_SERVICE_ACCOUNT_FILE"),
         appscript_url=_env("APPSCRIPT_URL"),
         appscript_jeton=_env("APPSCRIPT_TOKEN"),
+        classeur_appscript_url=_env("CLASSEUR_APPSCRIPT_URL"),
+        classeur_appscript_jeton=_env("CLASSEUR_APPSCRIPT_TOKEN"),
     )
 
 

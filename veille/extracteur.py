@@ -87,6 +87,11 @@ class Source:
     notes: str = ""
     domaines_supplementaires: list[str] = field(default_factory=list)
     actif: bool = True
+    # Classement dans le classeur manuel (voir veille/categorisation.py) :
+    # catégorie par défaut de la source, et pour les agrégateurs multi-secteurs,
+    # classement programme par programme par mots-clés.
+    categorie: str = "À classer"
+    categorie_mots_cles: bool = False
 
 
 def charger_sources(chemin: Path) -> list[Source]:
@@ -110,6 +115,8 @@ def charger_sources(chemin: Path) -> list[Source]:
                 notes=(entree.get("notes") or "").strip(),
                 domaines_supplementaires=list(entree.get("domaines_supplementaires") or []),
                 actif=bool(entree.get("actif", True)),
+                categorie=(entree.get("categorie") or "À classer").strip(),
+                categorie_mots_cles=bool(entree.get("categorie_mots_cles", False)),
             )
         )
     return sources

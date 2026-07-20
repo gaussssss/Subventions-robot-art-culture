@@ -139,6 +139,19 @@ def _executer(args, config: Config) -> int:
             pass
         return 1
 
+    # ── 5. Distribution vers le classeur manuel (si configuré) ──────────────
+    # Aucune collecte supplémentaire : on redistribue les mêmes résultats.
+    if config.classeur_appscript_url:
+        from . import classeur as module_classeur
+
+        try:
+            resume_classeur = module_classeur.synchroniser(config, resultats)
+            logger.info("Classeur : %s", resume_classeur)
+            avertissements.append(f"classeur : {resume_classeur}")
+        except Exception as exc:
+            logger.exception("Échec de la distribution vers le classeur (la veille continue)")
+            avertissements.append(f"classeur en échec : {exc}")
+
     # ── Journal ───────────────────────────────────────────────────────────────
     duree = time.monotonic() - debut
     entree_journal = [

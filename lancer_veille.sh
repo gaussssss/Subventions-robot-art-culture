@@ -5,9 +5,11 @@ set -Eeuo pipefail
 #
 # Utilisation :
 #   ./lancer_veille.sh             exécute la veille complète
-#   ./lancer_veille.sh init        initialise le Google Sheet une seule fois
+#   ./lancer_veille.sh init        initialise le Google Sheet (une seule fois)
+#                                  puis enchaîne la première collecte
 #   ./lancer_veille.sh tache       mode silencieux pour le cron (sortie → journaux/)
 #   ./lancer_veille.sh planifier   ajoute la tâche au crontab (7 h chaque matin)
+#                                  puis enchaîne la première collecte
 #
 # Sur cPanel sans accès SSH : menu « Tâches Cron », ajouter la commande
 #   /bin/bash /home/VOTRECOMPTE/chemin/vers/lancer_veille.sh tache
@@ -91,7 +93,7 @@ fi
 if [ "${1:-}" = "init" ]; then
     echo "[init] Initialisation du Google Sheet (onglets + mise en forme)..."
     "$PYTHON_VENV" scripts/initialiser_feuille.py
-    exit $?
+    echo "[init] Structure prête — la première collecte démarre tout de suite..."
 fi
 
 if [ "${1:-}" = "planifier" ]; then
@@ -105,7 +107,7 @@ if [ "${1:-}" = "planifier" ]; then
     ( crontab -l 2>/dev/null | grep -v "lancer_veille.sh" || true; echo "$LIGNE" ) | crontab -
     echo "[ok] Tâche cron installée : $LIGNE"
     echo "     (vérifier : crontab -l ; retirer : crontab -e)"
-    exit 0
+    echo "[config] La première collecte démarre tout de suite..."
 fi
 
 if "$PYTHON_VENV" -m veille.main; then

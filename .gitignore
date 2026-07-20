@@ -17,6 +17,7 @@ ManualExtractions/
 .env
 sortie/
 journaux/
+etat/
 compte-service*.json
 service-account*.json
 
