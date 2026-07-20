@@ -17,6 +17,28 @@ FUSEAU_HORAIRE = ZoneInfo("America/Toronto")
 RACINE = Path(__file__).resolve().parent.parent
 FICHIER_SOURCES = RACINE / "sources.json"
 DOSSIER_SORTIE = RACINE / "sortie"
+FICHIER_ENV = RACINE / ".env"
+
+
+def charger_env_fichier(chemin: Path = FICHIER_ENV) -> None:
+    """Charge les variables du fichier .env dans l'environnement.
+
+    Les lanceurs (.bat/.sh) le font déjà avant d'appeler Python ; ceci permet en
+    plus d'exécuter le robot ou les outils directement (« python -m veille.… »)
+    sans passer par le lanceur. Les variables déjà définies ne sont jamais
+    écrasées : une vraie variable d'environnement reste prioritaire.
+    """
+    if not chemin.exists():
+        return
+    for ligne in chemin.read_text(encoding="utf-8").splitlines():
+        ligne = ligne.strip()
+        if not ligne or ligne.startswith("#") or "=" not in ligne:
+            continue
+        nom, _, valeur = ligne.partition("=")
+        nom = nom.strip()
+        valeur = valeur.strip().strip('"').strip("'")
+        if nom and nom not in os.environ:
+            os.environ[nom] = valeur
 
 
 def _env(nom: str, defaut: str | None = None) -> str | None:
@@ -58,6 +80,7 @@ class Config:
 
 
 def charger_config() -> Config:
+    charger_env_fichier()  # au cas où le robot est lancé sans passer par le lanceur
     return Config(
         jours_retention_expires=int(_env("JOURS_RETENTION_EXPIRES", "90")),
         delai_entre_requetes_s=float(_env("DELAI_ENTRE_REQUETES_S", "1.0")),
