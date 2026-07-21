@@ -269,7 +269,18 @@ function _classeurReinitialiser(gids, entetes) {
   gids.forEach(function (gid) {
     const onglet = _ongletParGid(gid);
     if (!onglet) return;
-    onglet.clear();                       // contenu + mises en forme de l'onglet
+    // Tout enlever pour repartir vraiment propre. onglet.clear() ne suffit pas :
+    // il laisse la mise en forme conditionnelle, les couleurs en alternance
+    // (bandes) et les listes déroulantes posées sur des colonnes entières.
+    const tout = onglet.getRange(1, 1, onglet.getMaxRows(), onglet.getMaxColumns());
+    tout.clearContent();          // valeurs
+    tout.clearFormat();           // couleurs de fond, polices, bordures…
+    tout.clearDataValidations();  // listes déroulantes
+    tout.clearNote();             // commentaires
+    onglet.clearConditionalFormatRules();                 // couleurs pilotées par règles
+    onglet.getBandings().forEach(function (b) { b.remove(); }); // couleurs en alternance
+    if (onglet.getFrozenRows()) onglet.setFrozenRows(0);
+    if (onglet.getFrozenColumns()) onglet.setFrozenColumns(0);
     if (entetes.length) {
       onglet.getRange(1, 1, 1, entetes.length)
         .setValues([entetes.map(String)])
