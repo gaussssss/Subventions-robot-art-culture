@@ -13,11 +13,12 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from urllib.parse import urlparse
 
 import requests
 
-from .config import Config
+from .config import DOSSIER_SORTIE, Config
 from .models import LigneSubvention
 
 logger = logging.getLogger(__name__)
@@ -27,6 +28,27 @@ DELAI_EXPIRATION_S = 180  # l'écriture de ~1000 lignes prend quelques secondes 
 
 class ErreurAppScript(RuntimeError):
     pass
+
+
+def _resumer_reponse_non_json(reponse) -> tuple[str, str | None]:
+    """Extrait le titre de la page HTML reçue et sauvegarde le corps brut pour
+    inspection. Retourne (titre_court, chemin_du_fichier_ou_None)."""
+    texte = reponse.text or ""
+    titre = ""
+    correspondance = re.search(r"<title[^>]*>(.*?)</title>", texte, re.IGNORECASE | re.DOTALL)
+    if correspondance:
+        titre = re.sub(r"\s+", " ", correspondance.group(1)).strip()[:120]
+    chemin = None
+    try:
+        DOSSIER_SORTIE.mkdir(exist_ok=True)
+        # Fichier unique réécrit à chaque fois : garde la DERNIÈRE réponse sans
+        # inonder le dossier pendant les réessais adaptatifs.
+        fichier = DOSSIER_SORTIE / "derniere-reponse-passerelle.html"
+        fichier.write_text(texte, encoding="utf-8")
+        chemin = str(fichier)
+    except OSError:
+        pass
+    return titre, chemin
 
 
 def appeler_passerelle(url: str, jeton: str, action: str, **donnees) -> dict:
@@ -57,9 +79,13 @@ def appeler_passerelle(url: str, jeton: str, action: str, **donnees) -> dict:
         else:
             detail = ("vérifier que le déploiement est une « application Web » avec "
                       "accès « Tout le monde », et que l'URL se termine par /exec.")
+        titre, chemin = _resumer_reponse_non_json(reponse)
+        supplement = f" [page reçue : « {titre} »]" if titre else ""
+        if chemin:
+            supplement += f" (réponse complète enregistrée : {chemin})"
         raise ErreurAppScript(
             f"La passerelle Apps Script n'a pas répondu en JSON "
-            f"(HTTP {reponse.status_code}, réponse de {hote}) : {detail}"
+            f"(HTTP {reponse.status_code}, réponse de {hote}){supplement} : {detail}"
         ) from exc
     if not objet.get("ok"):
         raise ErreurAppScript(f"Passerelle Apps Script : {objet.get('erreur', 'erreur inconnue')}")
