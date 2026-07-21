@@ -39,7 +39,7 @@ from datetime import date
 from .categorisation import CATEGORIE_PAR_DEFAUT, categoriser
 from .config import RACINE, Config
 from .extracteur import ResultatSource
-from .feuille_appscript import appeler_passerelle
+from .feuille_appscript import ErreurAppScript, appeler_passerelle
 from .models import ProgrammeExtrait, calculer_id_unique
 
 logger = logging.getLogger(__name__)
@@ -398,6 +398,52 @@ def _controler_url(nom_var: str, url: str | None, jeton: str | None) -> list[str
     return soupcons
 
 
+def _sonde_ecriture(url: str, jeton: str) -> bool:
+    """Envoie des requêtes d'écriture de taille croissante vers un onglet
+    inexistant (gid bidon : la passerelle répond « onglet introuvable » sans
+    rien écrire). Repère à quelle taille les envois cessent de passer — signe
+    d'un antivirus/pare-feu qui inspecte et tronque les gros envois HTTPS."""
+    GID_BIDON = 999999999
+    seuil_ok = 0
+    premier_echec = None
+    print("  sonde écriture (envois croissants, rien n'est écrit) :")
+    for nb_lignes in (1, 20, 50, 100, 200):
+        lignes = [["x" * 120 for _ in range(NB_COLONNES)] for _ in range(nb_lignes)]
+        import json as _json
+        ko = len(_json.dumps(lignes).encode()) // 1024
+        try:
+            # Onglet bidon → la passerelle répond « onglet introuvable » en JSON :
+            # cette réponse PROUVE que l'envoi est bien arrivé (c'est un succès de
+            # sonde). Seul un non-JSON (HTML) signale un envoi bloqué/tronqué.
+            appeler_passerelle(url, jeton, "classeur_ajouter", gid=GID_BIDON, lignes=lignes)
+            print(f"     {nb_lignes:3} lignes (~{ko:4} Ko) : OK (envoi arrivé)")
+            seuil_ok = nb_lignes
+        except ErreurAppScript as exc:
+            if "n'a pas répondu en JSON" in str(exc):
+                print(f"     {nb_lignes:3} lignes (~{ko:4} Ko) : ÉCHEC — envoi non arrivé (réponse HTML)")
+                premier_echec = (nb_lignes, ko)
+                break
+            # Erreur JSON métier (« onglet introuvable ») = l'envoi est bien passé.
+            print(f"     {nb_lignes:3} lignes (~{ko:4} Ko) : OK (envoi arrivé)")
+            seuil_ok = nb_lignes
+        except Exception:
+            print(f"     {nb_lignes:3} lignes (~{ko:4} Ko) : ÉCHEC réseau")
+            premier_echec = (nb_lignes, ko)
+            break
+    if premier_echec is None:
+        return True
+    nb, ko = premier_echec
+    if seuil_ok == 0:
+        print("     → même un petit envoi échoue : blocage réseau des écritures "
+              "(antivirus/pare-feu/proxy qui inspecte le HTTPS ?).")
+    else:
+        print(f"     → les envois passent jusqu'à ~{seuil_ok} lignes puis cassent : "
+              f"un antivirus/pare-feu tronque probablement les gros envois HTTPS.")
+    print("     Piste : désactiver l'analyse HTTPS/SSL de l'antivirus pour "
+          "script.google.com, ou réduire la taille des lots (réglage TAILLE_LOT).")
+    return False
+
+
 def _tester() -> int:
     """Vérifie les DEUX passerelles (Sheet principal + classeur) sans rien
     modifier : affiche chaque URL telle qu'elle est lue (révèle une coupure) et
@@ -439,6 +485,11 @@ def _tester() -> int:
                 if introuvables:
                     print(f"     ⚠ catégories sans onglet (iront dans « À classer ») : "
                           f"{', '.join(introuvables)}")
+                # Sonde d'écriture : envois de taille croissante vers un onglet
+                # BIDON (rien n'est écrit) pour repérer un blocage réseau des gros
+                # envois (antivirus/pare-feu qui inspecte le HTTPS).
+                if not _sonde_ecriture(url, jeton):
+                    global_ok = False
             else:
                 print("  lecture: OK")
         except Exception as exc:
