@@ -502,3 +502,40 @@ def test_classeur_onglet_reconnu_malgre_ponctuation_ajoutee():
     resolution = resoudre_onglets({"onglets": {}}, onglets)
     assert resolution["Régional - Mauricie"] == 5
     assert resolution["Innovation - techno"] == 6
+
+
+def test_classeur_envoi_adaptatif_contourne_troncature():
+    """Face à une passerelle qui refuse (réponse HTML) les lots trop gros, le
+    robot divise la taille et finit par tout écrire — cas d'un antivirus/pare-feu
+    qui tronque les gros envois HTTPS."""
+    import veille.classeur as cl
+
+    ecrits = []
+    SEUIL = 8
+
+    def envoyer(lot):
+        if len(lot) > SEUIL:
+            raise cl.ErreurAppScript(
+                "La passerelle Apps Script n'a pas répondu en JSON (réponse de script.google.com)"
+            )
+        ecrits.extend(lot)
+
+    taille_ref = [50]
+    cl._envoyer_adaptatif(list(range(30)), envoyer, taille_ref)
+
+    assert sorted(ecrits) == list(range(30))   # tout est passé
+    assert taille_ref[0] <= SEUIL               # la taille s'est ajustée sous le seuil
+
+
+def test_classeur_envoi_adaptatif_blocage_total_leve_une_erreur():
+    """Si même un envoi d'une seule ligne échoue (blocage complet), l'erreur
+    remonte au lieu de boucler indéfiniment."""
+    import pytest
+
+    import veille.classeur as cl
+
+    def toujours_html(lot):
+        raise cl.ErreurAppScript("La passerelle Apps Script n'a pas répondu en JSON")
+
+    with pytest.raises(cl.ErreurAppScript):
+        cl._envoyer_adaptatif([1, 2, 3], toujours_html, [50])

@@ -49,7 +49,8 @@ FICHIER_ETAT = RACINE / "etat" / "classeur-etat.json"
 PREFIXE_CLE = "rbt:"
 NB_COLONNES = 14  # les 14 colonnes du schéma du classeur (A à N)
 COLONNE_CLE = 35  # colonne AI : loin à droite de tout contenu manuel observé
-TAILLE_LOT = 200  # lignes ou cellules par appel HTTP à la passerelle
+TAILLE_LOT = 50   # lignes/cellules par appel ; réduit tout seul si l'envoi est
+                  # tronqué par un antivirus/pare-feu (voir _envoyer_adaptatif)
 
 # Catégorie canonique → nom d'onglet du classeur, tel quel (fautes de frappe et
 # espaces compris — décision du 2026-07-20 : on prend les onglets comme ils sont).
@@ -313,6 +314,32 @@ def _lots(elements: list, taille: int):
         yield elements[debut:debut + taille]
 
 
+def _envoyer_adaptatif(elements: list, envoyer_lot, taille_ref: list[int]) -> None:
+    """Envoie `elements` par lots via `envoyer_lot(sous_liste)`.
+
+    Si un lot est refusé parce que l'envoi n'est pas arrivé (réponse HTML — cas
+    typique d'un antivirus/pare-feu qui inspecte le HTTPS et tronque les gros
+    envois), la taille est divisée par deux et le même bloc est réessayé,
+    jusqu'à une ligne. `taille_ref` est une liste [taille] partagée entre les
+    onglets : la taille qui finit par passer sert directement aux suivants (on
+    ne re-tâtonne qu'une fois). Lève ErreurAppScript si même un seul élément ne
+    passe pas (blocage total, pas un simple problème de taille)."""
+    indice, total = 0, len(elements)
+    while indice < total:
+        taille = min(taille_ref[0], total - indice)
+        lot = elements[indice:indice + taille]
+        try:
+            envoyer_lot(lot)
+        except ErreurAppScript as exc:
+            if "n'a pas répondu en JSON" in str(exc) and taille > 1:
+                taille_ref[0] = max(1, taille // 2)
+                logger.info("Classeur : envoi réduit à %d élément(s)/lot (réseau limité)",
+                            taille_ref[0])
+                continue
+            raise
+        indice += taille
+
+
 def synchroniser(config: Config, resultats: list[ResultatSource]) -> str:
     """Point d'entrée appelé par main : lit le classeur, planifie, exécute.
     Retourne un résumé d'une ligne pour le Journal."""
@@ -340,27 +367,32 @@ def synchroniser(config: Config, resultats: list[ResultatSource]) -> str:
     etat = charger_etat()
     plan = planifier(etat, onglets, candidats)
     echecs = 0
+    taille_ref = [TAILLE_LOT]  # partagée : ratchet de taille commun à tous les onglets
 
-    # Mises à jour de cellules, onglet par onglet, par lots.
+    # Mises à jour de cellules, onglet par onglet (l'état n'avance qu'après succès complet).
     for maj in plan.majs.values():
+        def envoyer_cellules(lot, gid=maj.gid):
+            appeler_passerelle(url, jeton, "classeur_maj", gid=gid, cellules=lot)
         try:
-            for lot in _lots(maj.cellules, TAILLE_LOT):
-                appeler_passerelle(url, jeton, "classeur_maj", gid=maj.gid, cellules=lot)
+            _envoyer_adaptatif(maj.cellules, envoyer_cellules, taille_ref)
             for idu, base in maj.bases.items():
                 etat["lignes"][idu]["valeurs"] = base
         except Exception as exc:  # l'état n'est pas avancé : nouvel essai demain
             echecs += 1
             logger.warning("Classeur : mise à jour de l'onglet gid=%s en échec : %s", maj.gid, exc)
 
-    # Ajouts, onglet par onglet, par lots (l'état n'avance que pour les lots réussis).
+    # Ajouts, onglet par onglet (l'état de chaque ligne n'avance qu'une fois écrite).
     for ajouts in plan.ajouts.values():
-        indice = 0
+        paires = list(zip(ajouts.lignes, ajouts.entrees))  # (ligne, (idu, entrée d'état))
+
+        def envoyer_lignes(lot, gid=ajouts.gid):
+            appeler_passerelle(url, jeton, "classeur_ajouter", gid=gid,
+                               lignes=[ligne for ligne, _ in lot])
+            for _, (idu, entree) in lot:
+                etat["lignes"][idu] = entree
+
         try:
-            for lot in _lots(ajouts.lignes, TAILLE_LOT):
-                appeler_passerelle(url, jeton, "classeur_ajouter", gid=ajouts.gid, lignes=lot)
-                for idu, entree in ajouts.entrees[indice:indice + len(lot)]:
-                    etat["lignes"][idu] = entree
-                indice += len(lot)
+            _envoyer_adaptatif(paires, envoyer_lignes, taille_ref)
         except Exception as exc:
             echecs += 1
             logger.warning("Classeur : ajout dans l'onglet gid=%s en échec : %s", ajouts.gid, exc)
@@ -369,6 +401,8 @@ def synchroniser(config: Config, resultats: list[ResultatSource]) -> str:
     resume = plan.resume()
     if plan.nb_sans_onglet:
         resume += f", {plan.nb_sans_onglet} sans onglet (« À classer » introuvable ?)"
+    if taille_ref[0] < TAILLE_LOT:
+        resume += f", envois réduits à {taille_ref[0]} ligne(s)/lot (réseau limité)"
     if echecs:
         resume += f", {echecs} appel(s) en échec (reprise au prochain passage)"
     return resume
