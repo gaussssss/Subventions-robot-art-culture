@@ -128,15 +128,9 @@ def _executer(args, config: Config) -> int:
         )
     except Exception:
         logger.exception("Échec de la mise à jour Google Sheets")
-        # On déverse aussi la collecte dans les journaux : même si le fichier de
-        # sortie se perdait, rien ne serait perdu.
-        try:
-            logger.error(
-                "Collecte du jour (à récupérer dans les journaux) :\n%s",
-                chemin_resultats.read_text(encoding="utf-8"),
-            )
-        except OSError:
-            pass
+        # La collecte du jour est déjà sauvegardée : on rappelle seulement où la
+        # retrouver (ne PAS la déverser dans la console, elle noierait l'erreur).
+        logger.error("Collecte du jour conservée dans : %s", chemin_resultats)
         return 1
 
     # ── 5. Distribution vers le classeur manuel (si configuré) ──────────────

@@ -376,22 +376,14 @@ def synchroniser(config: Config, resultats: list[ResultatSource]) -> str:
 
 # ─── Diagnostic de connexion ─────────────────────────────────────────────────
 
-def _tester() -> int:
-    """Vérifie la liaison avec le classeur sans rien modifier : affiche l'URL
-    telle qu'elle est lue (révèle une coupure/espace parasite), puis interroge
-    la passerelle depuis ce poste."""
-    from .config import charger_config
-
-    config = charger_config()
-    url = config.classeur_appscript_url
-    jeton = config.classeur_appscript_jeton
-
-    print("─ Réglages lus dans le .env ─")
+def _controler_url(nom_var: str, url: str | None, jeton: str | None) -> list[str]:
+    """Affiche une URL telle qu'elle est lue et signale les défauts évidents."""
     if not url:
-        print("  CLASSEUR_APPSCRIPT_URL : ABSENTE — le classeur ne sera pas alimenté.")
-        return 1
-    print(f"  CLASSEUR_APPSCRIPT_URL : [{url}]")
-    print(f"     longueur : {len(url)} caractères")
+        print(f"  {nom_var} : ABSENTE")
+        return ["absente"]
+    print(f"  {nom_var} : [{url}]")
+    print(f"     longueur : {len(url)} caractères ; jeton : "
+          f"{'défini (' + str(len(jeton)) + ' car.)' if jeton else 'ABSENT'}")
     soupcons = []
     if not url.startswith("https://"):
         soupcons.append("ne commence pas par https://")
@@ -399,35 +391,65 @@ def _tester() -> int:
         soupcons.append("ne se termine pas par /exec")
     if any(c.isspace() for c in url):
         soupcons.append("contient un espace ou un retour à la ligne (URL coupée ?)")
+    if not jeton:
+        soupcons.append("jeton absent")
     if soupcons:
-        print("  ⚠ PROBLÈME(S) d'URL : " + " ; ".join(soupcons))
-    print(f"  CLASSEUR_APPSCRIPT_TOKEN : {'défini' if jeton else 'ABSENT'}"
-          f"{' (' + str(len(jeton)) + ' caractères)' if jeton else ''}")
-    if soupcons:
-        print("\n→ Corrigez l'URL dans le .env (une seule ligne, sans espace) puis relancez ce test.")
-        return 1
+        print("     ⚠ " + " ; ".join(soupcons))
+    return soupcons
 
-    print("\n─ Interrogation de la passerelle ─")
-    try:
-        rep = appeler_passerelle(url, jeton, "ping")
-        print(f"  ping           : OK ({rep.get('reponse')})")
-    except Exception as exc:
-        print(f"  ping           : ÉCHEC — {exc}")
-        return 1
-    try:
-        onglets = appeler_passerelle(url, jeton, "classeur_lire").get("onglets", [])
-        print(f"  classeur_lire  : OK — {len(onglets)} onglet(s) lus")
-        resolution = resoudre_onglets({"onglets": {}}, onglets)
-        introuvables = [c for c in ONGLET_PAR_CATEGORIE if c not in resolution]
-        if introuvables:
-            print(f"  ⚠ catégories sans onglet correspondant (iront dans « À classer ») : "
-                  f"{', '.join(introuvables)}")
-    except Exception as exc:
-        print(f"  classeur_lire  : ÉCHEC — {exc}")
-        return 1
 
-    print("\n✓ Liaison au classeur opérationnelle. Vous pouvez lancer la veille.")
-    return 0
+def _tester() -> int:
+    """Vérifie les DEUX passerelles (Sheet principal + classeur) sans rien
+    modifier : affiche chaque URL telle qu'elle est lue (révèle une coupure) et
+    l'interroge depuis ce poste, pour identifier laquelle est en cause."""
+    from .config import charger_config
+
+    config = charger_config()
+    cibles = [
+        ("Sheet principal", "APPSCRIPT_URL", config.appscript_url, config.appscript_jeton, "structure"),
+        ("Classeur", "CLASSEUR_APPSCRIPT_URL", config.classeur_appscript_url,
+         config.classeur_appscript_jeton, "classeur_lire"),
+    ]
+    global_ok = True
+
+    for libelle, nom_var, url, jeton, action in cibles:
+        print(f"\n═ {libelle} ═")
+        if not url:
+            print(f"  {nom_var} : non configurée (cette destination est ignorée).")
+            continue
+        soupcons = _controler_url(nom_var, url, jeton)
+        if any(s != "absente" for s in soupcons):
+            print("     → corriger dans le .env (une seule ligne, sans espace) puis relancer.")
+            global_ok = False
+            continue
+        try:
+            rep = appeler_passerelle(url, jeton, "ping")
+            print(f"  ping   : OK ({rep.get('reponse')})")
+        except Exception as exc:
+            print(f"  ping   : ÉCHEC — {exc}")
+            global_ok = False
+            continue
+        try:
+            reponse = appeler_passerelle(url, jeton, action)
+            if action == "classeur_lire":
+                onglets = reponse.get("onglets", [])
+                print(f"  lecture: OK — {len(onglets)} onglet(s) lus")
+                resolution = resoudre_onglets({"onglets": {}}, onglets)
+                introuvables = [c for c in ONGLET_PAR_CATEGORIE if c not in resolution]
+                if introuvables:
+                    print(f"     ⚠ catégories sans onglet (iront dans « À classer ») : "
+                          f"{', '.join(introuvables)}")
+            else:
+                print("  lecture: OK")
+        except Exception as exc:
+            print(f"  lecture: ÉCHEC — {exc}")
+            global_ok = False
+
+    if global_ok:
+        print("\n✓ Passerelles opérationnelles. Vous pouvez lancer la veille.")
+        return 0
+    print("\n✗ Au moins une passerelle est en échec — voir ci-dessus.")
+    return 1
 
 
 # ─── Petit utilitaire en ligne de commande ───────────────────────────────────
