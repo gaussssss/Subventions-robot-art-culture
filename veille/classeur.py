@@ -1,10 +1,9 @@
 """Distribution des subventions collectées vers le classeur manuel (2e Google Sheet).
 
-Depuis le 2026-07-21, le classeur adopte EXACTEMENT la structure du Sheet du
-robot : chaque onglet de catégorie porte les 14 colonnes du schéma « Subventions »
-(voir models.COLONNES) et reçoit les mêmes lignes que le Sheet du robot,
-réparties par catégorie. La colonne `id_unique` (colonne N, la 14ᵉ) sert de clé
-d'identité — identique à celle du Sheet du robot.
+Depuis le 2026-07-21, le classeur reçoit les mêmes lignes que le Sheet du robot,
+réparties par catégorie, avec les mêmes 14 colonnes (models.COLONNES) mais dans
+l'ordre d'affichage `ORDRE_CLASSEUR` (échéance en tête). La colonne `id_unique`
+(colonne N, la 14ᵉ) sert de clé d'identité — identique à celle du Sheet du robot.
 
 Le classeur reste un document vivant, trié et annoté à la main : le robot fusionne
 au lieu d'écraser (fusion à trois voies). Il compare trois versions de chaque
@@ -53,15 +52,33 @@ logger = logging.getLogger(__name__)
 
 FICHIER_ETAT = RACINE / "etat" / "classeur-etat.json"
 
-NB_COLONNES = len(COLONNES)               # 14 colonnes, schéma du Sheet du robot
-INDICE_CLE = COLONNES.index("id_unique")  # colonne N (index 13) : clé d'identité
+# Ordre des colonnes DANS LE CLASSEUR : mêmes colonnes que le Sheet du robot
+# (models.COLONNES), mais présentées échéance en tête (demande du 2026-07-21) ;
+# les colonnes techniques finissent à droite. id_unique reste la clé, en dernier.
+# C'est une permutation de COLONNES : le Sheet du robot, lui, garde son ordre.
+ORDRE_CLASSEUR = [
+    "date_limite", "nom_programme", "organisme", "montant", "statut",
+    "admissibilite_obnl", "palier", "type", "discipline", "url", "notes_agent",
+    "date_detection", "derniere_verification", "id_unique",
+]
+assert set(ORDRE_CLASSEUR) == set(COLONNES), "ORDRE_CLASSEUR doit permuter COLONNES"
+_PERMUTATION = [COLONNES.index(c) for c in ORDRE_CLASSEUR]  # source de chaque colonne
+
+NB_COLONNES = len(ORDRE_CLASSEUR)                 # 14 colonnes
+INDICE_CLE = ORDRE_CLASSEUR.index("id_unique")    # colonne N : clé d'identité
 # Colonnes que le robot garde en phase à chaque passage. Exclues : date_detection
 # et derniere_verification (posées une fois, sinon churn quotidien) et id_unique
 # (la clé, jamais réécrite).
 INDICES_SYNC = [
-    i for i, c in enumerate(COLONNES)
+    i for i, c in enumerate(ORDRE_CLASSEUR)
     if c not in ("date_detection", "derniere_verification", "id_unique")
 ]
+
+
+def vers_ordre_classeur(rangee_robot: list[str]) -> list[str]:
+    """Réordonne une ligne au schéma du robot (models.COLONNES) vers l'ordre
+    d'affichage du classeur (échéance en tête)."""
+    return [rangee_robot[i] for i in _PERMUTATION]
 TAILLE_LOT = 50   # lignes/cellules par appel ; réduit tout seul si l'envoi est
                   # tronqué par un antivirus/pare-feu (voir _envoyer_adaptatif)
 
@@ -332,7 +349,7 @@ def construire_candidats(
         if not idu or idu in vus:
             continue
         vus.add(idu)
-        rangee = ligne.en_liste()
+        rangee = vers_ordre_classeur(ligne.en_liste())  # échéance en tête
         rangee[INDICE_CLE] = idu  # garantit l'id_unique en colonne N (la clé)
         candidats.append((idu, rangee, cat.get(idu, CATEGORIE_PAR_DEFAUT)))
     return candidats
@@ -421,7 +438,7 @@ def reinitialiser_classeur(config: Config) -> str:
     logger.info("Réinitialisation de %d onglet(s) : %s", len(gids),
                 ", ".join(noms.get(g, str(g)) for g in gids))
     reponse = appeler_passerelle(url, jeton, "classeur_reinitialiser",
-                                 gids=gids, entetes=COLONNES)
+                                 gids=gids, entetes=ORDRE_CLASSEUR)
     # Repart d'un état vierge : les onglets sont vides, plus aucune ligne connue.
     sauvegarder_etat({"onglets": dict(resolution), "lignes": {}})
     return reponse.get("reponse", f"{len(gids)} onglet(s) réinitialisé(s)")

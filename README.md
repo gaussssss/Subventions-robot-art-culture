@@ -167,10 +167,13 @@ passerelle ; sinon par le compte de service.
 
 En plus du Sheet du robot, le pipeline distribue les **mêmes lignes** (aucun
 scraping supplémentaire) dans le **classeur personnel** de l'utilisatrice,
-réparties par onglets de catégories. Depuis le 2026-07-21, le classeur adopte
-**exactement la structure du Sheet du robot** : chaque onglet de catégorie porte
-les 14 colonnes du schéma « Subventions » ([models.COLONNES](veille/models.py)) et
-reçoit les lignes fusionnées (`a_garder`), classées par catégorie.
+réparties par onglets de catégories. Depuis le 2026-07-21, chaque onglet de
+catégorie porte les mêmes 14 colonnes que le Sheet du robot
+([models.COLONNES](veille/models.py)) et reçoit les lignes fusionnées
+(`a_garder`), classées par catégorie. L'ordre d'affichage du classeur
+(`ORDRE_CLASSEUR` dans [veille/classeur.py](veille/classeur.py)) place l'échéance
+en tête (date_limite, nom_programme, organisme, montant, statut, …, id_unique en
+dernier) ; le Sheet du robot, lui, garde son ordre d'origine.
 
 Activation : coller le même `Code.gs` dans le classeur, le déployer, renseigner
 `CLASSEUR_APPSCRIPT_URL` / `CLASSEUR_APPSCRIPT_TOKEN` dans `.env`, puis **une

@@ -366,19 +366,22 @@ def _onglet(gid, nom, valeurs):
 
 
 def _candidat(programme, source):
-    """(id_unique, ligne de 14 colonnes au schéma robot, catégorie)."""
+    """(id_unique, ligne de 14 colonnes dans l'ORDRE_CLASSEUR, catégorie)."""
     from veille.categorisation import categoriser
+    from veille.classeur import vers_ordre_classeur
     from veille.models import LigneSubvention
 
     idu = calculer_id_unique(programme.organisme, programme.nom_programme, programme.url)
-    rangee = LigneSubvention.depuis_programme(programme, idu, "2026-07-14").en_liste()
+    rangee = vers_ordre_classeur(
+        LigneSubvention.depuis_programme(programme, idu, "2026-07-14").en_liste()
+    )
     return (idu, rangee, categoriser(programme, source))
 
 
 def test_classeur_candidats_reprennent_les_lignes_du_robot():
-    """construire_candidats reprend chaque ligne du Sheet du robot (14 colonnes,
-    id_unique en colonne N) et lui attache une catégorie via les sources."""
-    from veille.classeur import INDICE_CLE, construire_candidats
+    """construire_candidats reprend chaque ligne du Sheet du robot, réordonnée
+    échéance en tête (ORDRE_CLASSEUR), avec sa catégorie via les sources."""
+    from veille.classeur import INDICE_CLE, ORDRE_CLASSEUR, construire_candidats
     from veille.extracteur import ResultatSource
     from veille.models import LigneSubvention
 
@@ -391,7 +394,9 @@ def test_classeur_candidats_reprennent_les_lignes_du_robot():
     assert len(candidats) == 1
     cid, rangee, cat = candidats[0]
     assert cid == idu and cat == "Tourisme"
-    assert rangee[0] == "Programme test"      # nom_programme
+    assert ORDRE_CLASSEUR[0] == "date_limite"
+    assert rangee[0] == "2026-09-15"          # date_limite en tête
+    assert rangee[1] == "Programme test"      # nom_programme
     assert rangee[INDICE_CLE] == idu          # id_unique en colonne N
 
 
@@ -406,8 +411,8 @@ def test_classeur_nouvelle_ligne_dans_le_bon_onglet():
 
     assert plan.nb_ajouts == 1 and list(plan.ajouts) == [11]
     ligne = plan.ajouts[11].lignes[0]
-    assert ligne[0] == "Programme test"       # nom_programme (col A)
-    assert ligne[6] == "2026-09-15"           # date_limite (col G)
+    assert ligne[0] == "2026-09-15"           # date_limite (col A)
+    assert ligne[1] == "Programme test"       # nom_programme (col B)
     assert ligne[INDICE_CLE] == idu           # id_unique (col N)
     # L'état de la ligne n'est enregistré qu'après l'écriture réussie.
     assert etat["lignes"] == {}
@@ -429,10 +434,10 @@ def test_classeur_modif_humaine_preservee_et_maj_machine():
 
     idu, base, cat = _candidat(_programme(), _source(categorie="Tourisme"))
 
-    # Dans le classeur : l'humain a réécrit le montant (col F = index 5) ; le
-    # robot voit une nouvelle date limite (col G = index 6) dans la collecte.
+    # ORDRE_CLASSEUR : date_limite = index 0 (col 1), montant = index 3 (col 4).
+    # L'humain a réécrit le montant ; le robot voit une nouvelle date limite.
     ligne_sheet = list(base)
-    ligne_sheet[5] = "10 000 $ (confirmé par courriel)"
+    ligne_sheet[3] = "10 000 $ (confirmé par courriel)"
 
     etat = {"onglets": {"Tourisme": 11},
             "lignes": {idu: {"gid": 11, "valeurs": base, "categorie": cat, "supprimee": False}}}
@@ -442,12 +447,12 @@ def test_classeur_modif_humaine_preservee_et_maj_machine():
                               _source(categorie="Tourisme"))
     plan = planifier(etat, onglets, [(idu, nouveau, cat)])
 
-    # Le montant humain n'est PAS écrasé (col 6) ; la date limite EST mise à jour (col 7).
+    # Le montant humain n'est PAS écrasé (col 4) ; la date limite EST mise à jour (col 1).
     valeurs_ecrites = {c["colonne"]: c["valeur"] for c in plan.majs[11].cellules}
-    assert 6 not in valeurs_ecrites
-    assert valeurs_ecrites[7] == "2026-11-30"
+    assert 4 not in valeurs_ecrites
+    assert valeurs_ecrites[1] == "2026-11-30"
     # La base différée retient la valeur humaine.
-    assert plan.majs[11].bases[idu][5] == "10 000 $ (confirmé par courriel)"
+    assert plan.majs[11].bases[idu][3] == "10 000 $ (confirmé par courriel)"
     assert plan.nb_adoptions >= 1
     # L'onglet renommé reste résolu par son gid mémorisé.
     assert etat["onglets"]["Tourisme"] == 11
