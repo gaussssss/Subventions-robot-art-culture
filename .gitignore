@@ -18,6 +18,7 @@ ManualExtractions/
 sortie/
 journaux/
 etat/
+sauvegardes/
 compte-service*.json
 service-account*.json
 

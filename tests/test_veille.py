@@ -366,26 +366,49 @@ def _onglet(gid, nom, valeurs):
 
 
 def _candidat(programme, source):
+    """(id_unique, ligne de 14 colonnes au schéma robot, catégorie)."""
     from veille.categorisation import categoriser
+    from veille.models import LigneSubvention
 
     idu = calculer_id_unique(programme.organisme, programme.nom_programme, programme.url)
-    return (idu, programme, categoriser(programme, source))
+    rangee = LigneSubvention.depuis_programme(programme, idu, "2026-07-14").en_liste()
+    return (idu, rangee, categoriser(programme, source))
+
+
+def test_classeur_candidats_reprennent_les_lignes_du_robot():
+    """construire_candidats reprend chaque ligne du Sheet du robot (14 colonnes,
+    id_unique en colonne N) et lui attache une catégorie via les sources."""
+    from veille.classeur import INDICE_CLE, construire_candidats
+    from veille.extracteur import ResultatSource
+    from veille.models import LigneSubvention
+
+    p = _programme()
+    src = _source(categorie="Tourisme")
+    idu = calculer_id_unique(p.organisme, p.nom_programme, p.url)
+    ligne = LigneSubvention.depuis_programme(p, idu, "2026-07-14")
+
+    candidats = construire_candidats([ResultatSource(source=src, programmes=[p])], [ligne])
+    assert len(candidats) == 1
+    cid, rangee, cat = candidats[0]
+    assert cid == idu and cat == "Tourisme"
+    assert rangee[0] == "Programme test"      # nom_programme
+    assert rangee[INDICE_CLE] == idu          # id_unique en colonne N
 
 
 def test_classeur_nouvelle_ligne_dans_le_bon_onglet():
-    from veille.classeur import PREFIXE_CLE, planifier
+    from veille.classeur import INDICE_CLE, planifier
 
     etat = {"onglets": {}, "lignes": {}}
-    onglets = [_onglet(11, "Tourimse", []), _onglet(22, "À classer", [])]
-    idu, p, cat = _candidat(_programme(), _source(categorie="Tourisme"))
+    onglets = [_onglet(11, "Tourimse", [["en-tête"]]), _onglet(22, "À classer", [])]
+    idu, rangee, cat = _candidat(_programme(), _source(categorie="Tourisme"))
 
-    plan = planifier(etat, onglets, [(idu, p, cat)])
+    plan = planifier(etat, onglets, [(idu, rangee, cat)])
 
     assert plan.nb_ajouts == 1 and list(plan.ajouts) == [11]
-    rangee = plan.ajouts[11].lignes[0]
-    assert rangee[0] == "Programme test"
-    assert rangee[-1] == PREFIXE_CLE + idu
-    assert (rangee[3], rangee[4], rangee[5]) == ("15", "Septembre", "2026")
+    ligne = plan.ajouts[11].lignes[0]
+    assert ligne[0] == "Programme test"       # nom_programme (col A)
+    assert ligne[6] == "2026-09-15"           # date_limite (col G)
+    assert ligne[INDICE_CLE] == idu           # id_unique (col N)
     # L'état de la ligne n'est enregistré qu'après l'écriture réussie.
     assert etat["lignes"] == {}
 
@@ -395,59 +418,53 @@ def test_classeur_categorie_inconnue_va_dans_a_classer():
 
     etat = {"onglets": {}, "lignes": {}}
     onglets = [_onglet(22, "À classer", [])]
-    idu, p, cat = _candidat(_programme(), _source(categorie="Tourisme"))  # pas d'onglet Tourimse
+    idu, rangee, cat = _candidat(_programme(), _source(categorie="Tourisme"))  # pas d'onglet Tourimse
 
-    plan = planifier(etat, onglets, [(idu, p, cat)])
+    plan = planifier(etat, onglets, [(idu, rangee, cat)])
     assert list(plan.ajouts) == [22]
 
 
 def test_classeur_modif_humaine_preservee_et_maj_machine():
-    from veille.classeur import PREFIXE_CLE, ligne_classeur, planifier
+    from veille.classeur import planifier
 
-    p = _programme()
-    idu, _, cat = _candidat(p, _source(categorie="Tourisme"))
-    base = ligne_classeur(p)
+    idu, base, cat = _candidat(_programme(), _source(categorie="Tourisme"))
 
-    # Dans le classeur : l'humain a réécrit le montant (col 8) ; le robot voit
-    # une nouvelle date limite dans la collecte du jour.
+    # Dans le classeur : l'humain a réécrit le montant (col F = index 5) ; le
+    # robot voit une nouvelle date limite (col G = index 6) dans la collecte.
     ligne_sheet = list(base)
-    ligne_sheet[7] = "10 000 $ (confirmé par courriel)"
-    ligne_sheet += [""] * (35 - len(ligne_sheet))
-    ligne_sheet[34] = PREFIXE_CLE + idu
+    ligne_sheet[5] = "10 000 $ (confirmé par courriel)"
 
     etat = {"onglets": {"Tourisme": 11},
             "lignes": {idu: {"gid": 11, "valeurs": base, "categorie": cat, "supprimee": False}}}
     onglets = [_onglet(11, "Renommé par l'humain", [ligne_sheet])]
 
-    p2 = _programme(date_limite="2026-11-30", montant="5 000 $")
-    plan = planifier(etat, onglets, [(idu, p2, cat)])
+    _, nouveau, _ = _candidat(_programme(date_limite="2026-11-30", montant="5 000 $"),
+                              _source(categorie="Tourisme"))
+    plan = planifier(etat, onglets, [(idu, nouveau, cat)])
 
-    # Le montant humain n'est PAS écrasé ; les colonnes de date sont mises à jour.
+    # Le montant humain n'est PAS écrasé (col 6) ; la date limite EST mise à jour (col 7).
     valeurs_ecrites = {c["colonne"]: c["valeur"] for c in plan.majs[11].cellules}
-    assert 8 not in valeurs_ecrites
-    assert valeurs_ecrites[4] == "30" and valeurs_ecrites[5] == "Novembre"
+    assert 6 not in valeurs_ecrites
+    assert valeurs_ecrites[7] == "2026-11-30"
     # La base différée retient la valeur humaine.
-    assert plan.majs[11].bases[idu][7] == "10 000 $ (confirmé par courriel)"
+    assert plan.majs[11].bases[idu][5] == "10 000 $ (confirmé par courriel)"
     assert plan.nb_adoptions >= 1
     # L'onglet renommé reste résolu par son gid mémorisé.
     assert etat["onglets"]["Tourisme"] == 11
 
 
-def test_classeur_ligne_deplacee_suivie_par_sa_cle():
-    from veille.classeur import PREFIXE_CLE, ligne_classeur, planifier
+def test_classeur_ligne_deplacee_suivie_par_son_id():
+    from veille.classeur import planifier
 
-    p = _programme()
-    idu, _, cat = _candidat(p, _source(categorie="Tourisme"))
-    base = ligne_classeur(p)
-    ligne_sheet = list(base) + [""] * (35 - len(base))
-    ligne_sheet[34] = PREFIXE_CLE + idu
+    idu, base, cat = _candidat(_programme(), _source(categorie="Tourisme"))
+    ligne_sheet = list(base)  # id_unique déjà en colonne N
 
     etat = {"onglets": {}, "lignes": {idu: {"gid": 11, "valeurs": base,
                                             "categorie": cat, "supprimee": False}}}
     # L'humain a déplacé la ligne de l'onglet 11 vers l'onglet 33.
     onglets = [_onglet(11, "Tourimse", []), _onglet(33, "Grands programmes", [ligne_sheet])]
 
-    plan = planifier(etat, onglets, [(idu, p, cat)])
+    plan = planifier(etat, onglets, [(idu, base, cat)])
     assert plan.nb_ajouts == 0 and plan.nb_deplacees == 1
     assert etat["lignes"][idu]["gid"] == 33
 
@@ -455,37 +472,33 @@ def test_classeur_ligne_deplacee_suivie_par_sa_cle():
 def test_classeur_ligne_supprimee_jamais_reajoutee():
     from veille.classeur import planifier
 
-    p = _programme()
-    idu, _, cat = _candidat(p, _source(categorie="Tourisme"))
-    etat = {"onglets": {}, "lignes": {idu: {"gid": 11, "valeurs": ["x"] * 14,
+    idu, base, cat = _candidat(_programme(), _source(categorie="Tourisme"))
+    etat = {"onglets": {}, "lignes": {idu: {"gid": 11, "valeurs": base,
                                             "categorie": cat, "supprimee": False}}}
     onglets = [_onglet(11, "Tourimse", []), _onglet(22, "À classer", [])]
 
-    plan = planifier(etat, onglets, [(idu, p, cat)])
+    plan = planifier(etat, onglets, [(idu, base, cat)])
     assert plan.nb_supprimees == 1 and plan.nb_ajouts == 0
     assert etat["lignes"][idu]["supprimee"] is True
 
     # Et au passage suivant non plus.
-    plan2 = planifier(etat, onglets, [(idu, p, cat)])
+    plan2 = planifier(etat, onglets, [(idu, base, cat)])
     assert plan2.nb_ajouts == 0 and plan2.nb_supprimees == 0
 
 
-def test_classeur_cle_retrouvee_meme_deplacee_en_colonne():
-    """Une insertion de colonne décale la clé : elle doit rester détectée, et
-    le décalage des valeurs est traité comme des modifs humaines (adoption)."""
-    from veille.classeur import PREFIXE_CLE, ligne_classeur, planifier
+def test_classeur_id_retrouve_meme_colonne_inseree():
+    """Une insertion de colonne décale l'id_unique : il doit rester détecté
+    (recherche dans toute la rangée)."""
+    from veille.classeur import planifier
 
-    p = _programme()
-    idu, _, cat = _candidat(p, _source(categorie="Tourisme"))
-    base = ligne_classeur(p)
-    ligne_sheet = [""] + list(base) + [""] * 10  # colonne insérée en tête
-    ligne_sheet.append(PREFIXE_CLE + idu)        # clé décalée en bout de ligne
+    idu, base, cat = _candidat(_programme(), _source(categorie="Tourisme"))
+    ligne_sheet = [""] + list(base)  # colonne insérée en tête → id_unique décalé
 
     etat = {"onglets": {}, "lignes": {idu: {"gid": 11, "valeurs": base,
                                             "categorie": cat, "supprimee": False}}}
     onglets = [_onglet(11, "Tourimse", [ligne_sheet])]
 
-    plan = planifier(etat, onglets, [(idu, p, cat)])
+    plan = planifier(etat, onglets, [(idu, base, cat)])
     # Pas de ré-ajout, pas de suppression : la ligne est bien retrouvée.
     assert plan.nb_ajouts == 0 and plan.nb_supprimees == 0
 

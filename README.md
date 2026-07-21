@@ -165,11 +165,22 @@ passerelle ; sinon par le compte de service.
 
 ## Classeur manuel (2ᵉ Google Sheet, facultatif)
 
-En plus du Sheet du robot, le pipeline peut distribuer la même collecte (aucun
+En plus du Sheet du robot, le pipeline distribue les **mêmes lignes** (aucun
 scraping supplémentaire) dans le **classeur personnel** de l'utilisatrice,
-organisé par onglets de catégories. Activation : coller le même `Code.gs` dans
-le classeur, le déployer, puis renseigner `CLASSEUR_APPSCRIPT_URL` et
-`CLASSEUR_APPSCRIPT_TOKEN` dans `.env`.
+réparties par onglets de catégories. Depuis le 2026-07-21, le classeur adopte
+**exactement la structure du Sheet du robot** : chaque onglet de catégorie porte
+les 14 colonnes du schéma « Subventions » ([models.COLONNES](veille/models.py)) et
+reçoit les lignes fusionnées (`a_garder`), classées par catégorie.
+
+Activation : coller le même `Code.gs` dans le classeur, le déployer, renseigner
+`CLASSEUR_APPSCRIPT_URL` / `CLASSEUR_APPSCRIPT_TOKEN` dans `.env`, puis **une
+seule fois** aligner la structure (opération destructrice — copie du classeur
+recommandée avant) :
+
+```bash
+python -m veille.classeur --tester                # vérifie les deux passerelles
+python -m veille.classeur --reinitialiser-classeur # vide les onglets + 14 en-têtes
+```
 
 Principes ([veille/classeur.py](veille/classeur.py)) :
 
@@ -179,12 +190,19 @@ Principes ([veille/classeur.py](veille/classeur.py)) :
   repli « À classer » ; règle transversale « autochtone » → onglet Autochtones.
 - **Fusion à trois voies** : base mémorisée dans `etat/classeur-etat.json`
   (exclu de git) vs contenu actuel du classeur vs collecte du jour. Une cellule
-  modifiée à la main n'est **jamais** réécrite ; une ligne supprimée n'est
+  modifiée à la main n'est **jamais** réécrite (colonnes en phase : tout sauf
+  date_detection / derniere_verification / id_unique) ; une ligne supprimée n'est
   jamais ré-ajoutée (`python -m veille.classeur --reactiver <id>` pour annuler) ;
-  une ligne déplacée d'onglet est suivie par sa clé (`rbt:<id_unique>`,
-  colonne AI) ; les onglets sont suivis par gid (renommage sans casse).
+  une ligne déplacée d'onglet est suivie par son `id_unique` (colonne N) ; les
+  onglets sont suivis par gid (renommage sans casse).
 - **Valeurs seulement** : la passerelle n'écrit ni couleur ni mise en forme —
-  les codes couleurs manuels sont intacts par construction.
+  les codes couleurs manuels sont intacts. À l'ajout, elle retire la validation
+  de données héritée sur SES lignes (sinon Sheets rejette une valeur hors liste
+  déroulante) ; les listes déroulantes des lignes de l'utilisateur restent intactes.
+- **Envoi adaptatif** : si un envoi est refusé (réponse HTML — antivirus/pare-feu
+  qui inspecte le HTTPS), la taille des lots est divisée puis réessayée.
+  `--tester` diagnostique les deux passerelles ; les réponses non-JSON sont
+  enregistrées dans `sortie/derniere-reponse-passerelle.html`.
 
 ## Exécution quotidienne — en local sous Windows
 

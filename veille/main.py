@@ -134,12 +134,13 @@ def _executer(args, config: Config) -> int:
         return 1
 
     # ── 5. Distribution vers le classeur manuel (si configuré) ──────────────
-    # Aucune collecte supplémentaire : on redistribue les mêmes résultats.
+    # Aucune collecte supplémentaire : le classeur reçoit EXACTEMENT les mêmes
+    # lignes que le Sheet du robot (a_garder), réparties par catégorie.
     if config.classeur_appscript_url:
         from . import classeur as module_classeur
 
         try:
-            resume_classeur = module_classeur.synchroniser(config, resultats)
+            resume_classeur = module_classeur.synchroniser(config, resultats, a_garder)
             logger.info("Classeur : %s", resume_classeur)
             avertissements.append(f"classeur : {resume_classeur}")
         except Exception as exc:

@@ -71,6 +71,7 @@ function doPost(e) {
       case "classeur_lire":    return _reponse(_classeurLire());
       case "classeur_ajouter": return _reponse(_classeurAjouter(corps.gid, corps.lignes || []));
       case "classeur_maj":     return _reponse(_classeurMaj(corps.gid, corps.cellules || []));
+      case "classeur_reinitialiser": return _reponse(_classeurReinitialiser(corps.gids || [], corps.entetes || []));
       default:           return _reponse({ ok: false, erreur: "action inconnue : " + corps.action });
     }
   } catch (err) {
@@ -254,6 +255,30 @@ function _classeurAjouter(gid, lignes) {
   plage.setNumberFormat("@") // texte brut : ne pas laisser Sheets réinterpréter les dates
     .setValues(normalisees);
   return { ok: true, reponse: normalisees.length + " ligne(s) ajoutée(s)" };
+}
+
+/**
+ * Repart à neuf pour une liste d'onglets : efface tout leur contenu et pose la
+ * ligne d'en-têtes fournie (le schéma à 14 colonnes du robot). Utilisé une seule
+ * fois pour aligner le classeur sur la structure du Sheet du robot. NE TOUCHE
+ * QU'AUX onglets dont le gid est fourni — les autres (Priorités, etc.) sont
+ * intacts. Faire une copie du classeur avant : cette action efface les données.
+ */
+function _classeurReinitialiser(gids, entetes) {
+  const faits = [];
+  gids.forEach(function (gid) {
+    const onglet = _ongletParGid(gid);
+    if (!onglet) return;
+    onglet.clear();                       // contenu + mises en forme de l'onglet
+    if (entetes.length) {
+      onglet.getRange(1, 1, 1, entetes.length)
+        .setValues([entetes.map(String)])
+        .setFontWeight("bold");
+      onglet.setFrozenRows(1);
+    }
+    faits.push(onglet.getName());
+  });
+  return { ok: true, reponse: faits.length + " onglet(s) réinitialisé(s) : " + faits.join(", ") };
 }
 
 /** Met à jour des cellules précises {ligne, colonne, valeur} (valeurs uniquement). */

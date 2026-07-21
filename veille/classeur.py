@@ -1,6 +1,12 @@
 """Distribution des subventions collectées vers le classeur manuel (2e Google Sheet).
 
-Le classeur est un document vivant, trié et annoté à la main : le robot fusionne
+Depuis le 2026-07-21, le classeur adopte EXACTEMENT la structure du Sheet du
+robot : chaque onglet de catégorie porte les 14 colonnes du schéma « Subventions »
+(voir models.COLONNES) et reçoit les mêmes lignes que le Sheet du robot,
+réparties par catégorie. La colonne `id_unique` (colonne N, la 14ᵉ) sert de clé
+d'identité — identique à celle du Sheet du robot.
+
+Le classeur reste un document vivant, trié et annoté à la main : le robot fusionne
 au lieu d'écraser (fusion à trois voies). Il compare trois versions de chaque
 ligne — ce qu'il a écrit la dernière fois (la « base », mémorisée dans
 etat/classeur-etat.json), ce qui est dans le classeur maintenant, et ce que la
@@ -9,20 +15,22 @@ collecte du jour rapporte — puis applique les règles :
   - cellule modifiée à la main depuis le dernier passage → la valeur humaine
     gagne, toujours (elle devient la nouvelle base) ;
   - cellule intacte et nouvelle valeur collectée → mise à jour ;
-  - ligne déplacée dans un autre onglet → retrouvée par sa clé, mise à jour sur
-    place (le choix humain de catégorie est retenu) ;
+  - ligne déplacée dans un autre onglet → retrouvée par son id_unique, mise à
+    jour sur place (le choix humain de catégorie est retenu) ;
   - ligne supprimée à la main → jamais ré-ajoutée (voir --reactiver) ;
   - programme jamais vu → ajouté à la suite de l'onglet de sa catégorie.
 
-Chaque ligne du robot porte une clé « rbt:<id_unique> » dans une colonne
-éloignée (AI). La clé est retrouvée en balayant toute la grille : elle survit
-aux tris, aux déplacements et aux insertions de colonnes. Les onglets sont
-suivis par leur identifiant interne (gid), qui survit aux renommages.
+Une ligne du robot se reconnaît à son `id_unique` (16 caractères) dans la
+colonne N ; il est cherché dans toute la rangée, ce qui survit aux tris et aux
+insertions de colonnes. Les onglets sont suivis par leur identifiant interne
+(gid), qui survit aux renommages. Le robot n'écrit que des VALEURS — jamais de
+couleur ni de mise en forme : les codes couleurs manuels restent intacts.
 
-Le robot n'écrit que des VALEURS — jamais de couleur ni de mise en forme :
-les codes couleurs manuels restent intacts.
+Mise en place (une seule fois) — aligner le classeur sur la structure du robot :
+    python -m veille.classeur --reinitialiser-classeur   # vide les onglets + 14 en-têtes
 
 Usage direct :
+    python -m veille.classeur --tester            # diagnostic de connexion
     python -m veille.classeur --resume            # état local en bref
     python -m veille.classeur --reactiver ID,ID   # ré-autoriser des lignes supprimées
 """
@@ -34,21 +42,26 @@ import json
 import logging
 import re
 from dataclasses import dataclass, field
-from datetime import date
 
 from .categorisation import CATEGORIE_PAR_DEFAUT, categoriser
 from .config import RACINE, Config
 from .extracteur import ResultatSource
 from .feuille_appscript import ErreurAppScript, appeler_passerelle
-from .models import ProgrammeExtrait, calculer_id_unique
+from .models import COLONNES, LigneSubvention, calculer_id_unique
 
 logger = logging.getLogger(__name__)
 
 FICHIER_ETAT = RACINE / "etat" / "classeur-etat.json"
 
-PREFIXE_CLE = "rbt:"
-NB_COLONNES = 14  # les 14 colonnes du schéma du classeur (A à N)
-COLONNE_CLE = 35  # colonne AI : loin à droite de tout contenu manuel observé
+NB_COLONNES = len(COLONNES)               # 14 colonnes, schéma du Sheet du robot
+INDICE_CLE = COLONNES.index("id_unique")  # colonne N (index 13) : clé d'identité
+# Colonnes que le robot garde en phase à chaque passage. Exclues : date_detection
+# et derniere_verification (posées une fois, sinon churn quotidien) et id_unique
+# (la clé, jamais réécrite).
+INDICES_SYNC = [
+    i for i, c in enumerate(COLONNES)
+    if c not in ("date_detection", "derniere_verification", "id_unique")
+]
 TAILLE_LOT = 50   # lignes/cellules par appel ; réduit tout seul si l'envoi est
                   # tronqué par un antivirus/pare-feu (voir _envoyer_adaptatif)
 
@@ -78,54 +91,6 @@ ONGLET_PAR_CATEGORIE = {
     "Diversité": "Diversité",
     CATEGORIE_PAR_DEFAUT: "À classer",
 }
-
-MOIS_FR = ("Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet",
-           "Août", "Septembre", "Octobre", "Novembre", "Décembre")
-
-_POUR_QUI = {"Oui": "OBNL", "Non": "Voir critères"}
-
-
-# ─── Construction d'une ligne au schéma du classeur ──────────────────────────
-
-def _jour_mois_annee(date_limite: str | None) -> tuple[str, str, str]:
-    if not date_limite:
-        return "", "", ""
-    if date_limite == "continu":
-        return "", "En continu", ""
-    try:
-        d = date.fromisoformat(date_limite)
-    except ValueError:
-        return "", "", ""
-    return str(d.day), MOIS_FR[d.month - 1], str(d.year)
-
-
-def ligne_classeur(programme: ProgrammeExtrait) -> list[str]:
-    """Les 14 colonnes du classeur : Subventions, Détail, Projet possible,
-    Jour, Mois, Année, Délai de réponse, Montant, Pour qui, Type, Région,
-    Détails, Contact, Site. « Projet possible » et « Délai de réponse »
-    restent vides : ce sont des colonnes humaines."""
-    jour, mois, annee = _jour_mois_annee(programme.date_limite)
-    return [
-        programme.nom_programme,
-        programme.discipline or "",
-        "",  # Projet possible — colonne humaine
-        jour, mois, annee,
-        "",  # Délai de réponse — inconnu du robot
-        programme.montant or "",
-        _POUR_QUI.get(programme.admissibilite_obnl, "À vérifier"),
-        programme.type,
-        programme.palier or "",
-        (programme.notes_agent or "")[:250],
-        programme.organisme,
-        programme.url,
-    ]
-
-
-def _rangee_avec_cle(valeurs: list[str], id_unique: str) -> list[str]:
-    rangee = list(valeurs) + [""] * (COLONNE_CLE - len(valeurs))
-    rangee[COLONNE_CLE - 1] = PREFIXE_CLE + id_unique
-    return rangee
-
 
 # ─── État local (la « base » de la fusion à trois voies) ─────────────────────
 
@@ -168,17 +133,19 @@ def resoudre_onglets(etat: dict, onglets: list[dict]) -> dict[str, int]:
     return resolution
 
 
-def _localiser_cles(onglets: list[dict]) -> dict[str, tuple[int, int, list]]:
+def _localiser_cles(
+    onglets: list[dict], ids_connus: set[str]
+) -> dict[str, tuple[int, int, list]]:
     """id_unique → (gid, numéro de ligne 1-based, valeurs de la ligne).
-    Cherche le préfixe de clé dans toute la grille : survit aux tris,
-    déplacements entre onglets et insertions de colonnes."""
+    Cherche l'id_unique (16 caractères) dans chaque rangée : normalement en
+    colonne N, mais scruter toute la rangée survit à une insertion de colonne."""
     localisation: dict[str, tuple[int, int, list]] = {}
     for onglet in onglets:
         for numero, rangee in enumerate(onglet["valeurs"], start=1):
             for cellule in rangee:
                 texte = str(cellule).strip()
-                if texte.startswith(PREFIXE_CLE):
-                    localisation[texte[len(PREFIXE_CLE):]] = (onglet["gid"], numero, rangee)
+                if texte in ids_connus:
+                    localisation[texte] = (onglet["gid"], numero, rangee)
                     break
     return localisation
 
@@ -221,14 +188,15 @@ class Plan:
 def planifier(
     etat: dict,
     onglets: list[dict],
-    candidats: list[tuple[str, ProgrammeExtrait, str]],
+    candidats: list[tuple[str, list[str], str]],
 ) -> Plan:
-    """Cœur pur de la fusion à trois voies. Mute `etat` pour ce qui n'exige
-    aucune écriture distante (suppressions, adoptions, déplacements) ; les
-    écritures distantes sont retournées dans le Plan avec leurs mises à jour
-    d'état différées."""
+    """Cœur pur de la fusion à trois voies. `candidats` = (id_unique, ligne de
+    14 colonnes, catégorie). Mute `etat` pour ce qui n'exige aucune écriture
+    distante (suppressions, adoptions, déplacements) ; les écritures distantes
+    sont retournées dans le Plan avec leurs mises à jour d'état différées."""
     resolution = resoudre_onglets(etat, onglets)
-    localisation = _localiser_cles(onglets)
+    indices_sync = set(INDICES_SYNC)
+    localisation = _localiser_cles(onglets, {idu for idu, _, _ in candidats})
     lignes_etat: dict = etat.setdefault("lignes", {})
     plan = Plan()
 
@@ -241,8 +209,7 @@ def planifier(
 
     gid_a_classer = resolution.get(CATEGORIE_PAR_DEFAUT)
 
-    for idu, programme, categorie in candidats:
-        nouveau = ligne_classeur(programme)
+    for idu, nouveau, categorie in candidats:
         entree = lignes_etat.get(idu)
         position = localisation.get(idu)
 
@@ -254,9 +221,9 @@ def planifier(
                 plan.nb_sans_onglet += 1
                 continue
             groupe = plan.ajouts.setdefault(gid, Ajouts(gid=gid))
-            groupe.lignes.append(_rangee_avec_cle(nouveau, idu))
+            groupe.lignes.append(list(nouveau))
             groupe.entrees.append((idu, {
-                "gid": gid, "valeurs": nouveau, "categorie": categorie, "supprimee": False,
+                "gid": gid, "valeurs": list(nouveau), "categorie": categorie, "supprimee": False,
             }))
             plan.nb_ajouts += 1
             continue
@@ -289,7 +256,7 @@ def planifier(
             if courant[i] != base[i]:
                 base_apres.append(courant[i])       # modif humaine : elle gagne
                 plan.nb_adoptions += 1
-            elif nouveau[i] and nouveau[i] != base[i]:
+            elif i in indices_sync and nouveau[i] and nouveau[i] != base[i]:
                 cellules.append({"ligne": numero_ligne, "colonne": i + 1,
                                  "valeur": nouveau[i]})
                 base_apres.append(nouveau[i])       # cellule intacte : mise à jour
@@ -340,9 +307,45 @@ def _envoyer_adaptatif(elements: list, envoyer_lot, taille_ref: list[int]) -> No
         indice += taille
 
 
-def synchroniser(config: Config, resultats: list[ResultatSource]) -> str:
+def categorie_par_id(resultats: list[ResultatSource]) -> dict[str, str]:
+    """id_unique → catégorie, d'après les sources (l'arbre de décision)."""
+    correspondance: dict[str, str] = {}
+    for resultat in resultats:
+        for programme in resultat.programmes:
+            idu = calculer_id_unique(programme.organisme, programme.nom_programme, programme.url)
+            correspondance.setdefault(idu, categoriser(programme, resultat.source))
+    return correspondance
+
+
+def construire_candidats(
+    resultats: list[ResultatSource], lignes_robot: list[LigneSubvention]
+) -> list[tuple[str, list[str], str]]:
+    """(id_unique, ligne de 14 colonnes, catégorie) pour chaque ligne du Sheet du
+    robot — mêmes lignes, mêmes valeurs, réparties par catégorie via les sources."""
+    cat = categorie_par_id(resultats)
+    candidats: list[tuple[str, list[str], str]] = []
+    vus: set[str] = set()
+    for ligne in lignes_robot:
+        idu = ligne.id_unique or calculer_id_unique(
+            ligne.organisme, ligne.nom_programme, ligne.url
+        )
+        if not idu or idu in vus:
+            continue
+        vus.add(idu)
+        rangee = ligne.en_liste()
+        rangee[INDICE_CLE] = idu  # garantit l'id_unique en colonne N (la clé)
+        candidats.append((idu, rangee, cat.get(idu, CATEGORIE_PAR_DEFAUT)))
+    return candidats
+
+
+def synchroniser(
+    config: Config,
+    resultats: list[ResultatSource],
+    lignes_robot: list[LigneSubvention],
+) -> str:
     """Point d'entrée appelé par main : lit le classeur, planifie, exécute.
-    Retourne un résumé d'une ligne pour le Journal."""
+    `lignes_robot` = les lignes fusionnées du Sheet du robot (a_garder) : le
+    classeur reçoit exactement les mêmes. Retourne un résumé pour le Journal."""
     url, jeton = config.classeur_appscript_url, config.classeur_appscript_jeton
     if not url or not jeton:
         raise RuntimeError(
@@ -350,15 +353,7 @@ def synchroniser(config: Config, resultats: list[ResultatSource]) -> str:
             "et CLASSEUR_APPSCRIPT_TOKEN."
         )
 
-    candidats: list[tuple[str, ProgrammeExtrait, str]] = []
-    vus: set[str] = set()
-    for resultat in resultats:
-        for programme in resultat.programmes:
-            idu = calculer_id_unique(programme.organisme, programme.nom_programme, programme.url)
-            if idu in vus:
-                continue
-            vus.add(idu)
-            candidats.append((idu, programme, categoriser(programme, resultat.source)))
+    candidats = construire_candidats(resultats, lignes_robot)
 
     onglets = appeler_passerelle(url, jeton, "classeur_lire").get("onglets", [])
     if not onglets:
@@ -406,6 +401,30 @@ def synchroniser(config: Config, resultats: list[ResultatSource]) -> str:
     if echecs:
         resume += f", {echecs} appel(s) en échec (reprise au prochain passage)"
     return resume
+
+
+# ─── Réinitialisation : aligner le classeur sur la structure du robot ────────
+
+def reinitialiser_classeur(config: Config) -> str:
+    """Vide les onglets de catégories et y pose les 14 en-têtes du robot, puis
+    remet l'état local à zéro. Opération DESTRUCTRICE (efface le contenu des
+    onglets de catégories) — faire une copie du classeur avant. Ne touche pas
+    aux onglets hors catégories (Priorités, etc.)."""
+    url, jeton = config.classeur_appscript_url, config.classeur_appscript_jeton
+    if not url or not jeton:
+        raise RuntimeError("Configuration du classeur incomplète (CLASSEUR_APPSCRIPT_URL/TOKEN).")
+
+    onglets = appeler_passerelle(url, jeton, "classeur_lire").get("onglets", [])
+    resolution = resoudre_onglets({"onglets": {}}, onglets)
+    gids = sorted(set(resolution.values()))
+    noms = {o["gid"]: o["nom"] for o in onglets}
+    logger.info("Réinitialisation de %d onglet(s) : %s", len(gids),
+                ", ".join(noms.get(g, str(g)) for g in gids))
+    reponse = appeler_passerelle(url, jeton, "classeur_reinitialiser",
+                                 gids=gids, entetes=COLONNES)
+    # Repart d'un état vierge : les onglets sont vides, plus aucune ligne connue.
+    sauvegarder_etat({"onglets": dict(resolution), "lignes": {}})
+    return reponse.get("reponse", f"{len(gids)} onglet(s) réinitialisé(s)")
 
 
 # ─── Diagnostic de connexion ─────────────────────────────────────────────────
@@ -548,6 +567,10 @@ def principal(argv: list[str] | None = None) -> int:
     analyseur.add_argument("--tester", action="store_true",
                            help="diagnostiquer la connexion au classeur (lit le .env, "
                                 "interroge la passerelle, ne modifie rien)")
+    analyseur.add_argument("--reinitialiser-classeur", action="store_true",
+                           dest="reinitialiser",
+                           help="DESTRUCTEUR : vide les onglets de catégories et y pose "
+                                "les 14 en-têtes du robot (faire une copie du classeur avant)")
     analyseur.add_argument("--reactiver", metavar="IDS",
                            help="ids (séparés par des virgules) de lignes supprimées à "
                                 "ré-autoriser : elles seront ré-ajoutées à la prochaine collecte")
@@ -555,6 +578,17 @@ def principal(argv: list[str] | None = None) -> int:
 
     if args.tester:
         return _tester()
+
+    if args.reinitialiser:
+        from .config import charger_config
+
+        reponse = input("Cette action EFFACE le contenu des onglets de catégories du "
+                        "classeur. Avez-vous fait une copie ? Taper « oui » pour continuer : ")
+        if reponse.strip().lower() != "oui":
+            print("Annulé.")
+            return 1
+        print(reinitialiser_classeur(charger_config()))
+        return 0
 
     etat = charger_etat()
     lignes = etat.get("lignes", {})
