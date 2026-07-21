@@ -244,8 +244,14 @@ function _classeurAjouter(gid, lignes) {
     while (rangee.length < largeur) rangee.push("");
     return rangee.map(String);
   });
-  onglet.getRange(onglet.getLastRow() + 1, 1, normalisees.length, largeur)
-    .setNumberFormat("@") // texte brut : ne pas laisser Sheets réinterpréter les dates
+  const plage = onglet.getRange(onglet.getLastRow() + 1, 1, normalisees.length, largeur);
+  // Retirer toute règle de validation (liste déroulante) HÉRITÉE sur les lignes
+  // que le robot ajoute : sinon Sheets rejette une valeur hors liste — ex.
+  // « Voir critères » dans une colonne « Pour qui » à choix imposé. Ne touche
+  // qu'aux lignes du robot ; les listes déroulantes des lignes de l'utilisateur
+  // restent intactes.
+  plage.clearDataValidations();
+  plage.setNumberFormat("@") // texte brut : ne pas laisser Sheets réinterpréter les dates
     .setValues(normalisees);
   return { ok: true, reponse: normalisees.length + " ligne(s) ajoutée(s)" };
 }
@@ -255,7 +261,9 @@ function _classeurMaj(gid, cellules) {
   const onglet = _ongletParGid(gid);
   if (!onglet) return { ok: false, erreur: "onglet introuvable (gid " + gid + ")" };
   cellules.forEach(function (c) {
-    onglet.getRange(c.ligne, c.colonne).setNumberFormat("@").setValue(String(c.valeur));
+    const cellule = onglet.getRange(c.ligne, c.colonne);
+    cellule.clearDataValidations(); // idem : ne pas buter sur une liste imposée
+    cellule.setNumberFormat("@").setValue(String(c.valeur));
   });
   return { ok: true, reponse: cellules.length + " cellule(s) mise(s) à jour" };
 }
